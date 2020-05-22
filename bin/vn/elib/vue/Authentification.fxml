@@ -14,17 +14,17 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="1070.0" style="-fx-background-color: #2e3131;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.elib.vue.Authentification">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="1070.0" style="-fx-background-color: #2e3131;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.elib.vue.Authentification">
    <children>
       <Pane layoutX="533.0" prefHeight="590.0" prefWidth="535.0">
          <children>
             <MaterialDesignIconView fill="#ec644b" glyphName="LOCK_OPEN" layoutX="150.0" layoutY="176.0" size="40" />
-            <JFXTextField fx:id="pseudoc" focusColor="#ec644b" focusTraversable="false" labelFloat="true" layoutX="124.0" layoutY="233.0" maxWidth="356.0" minWidth="279.0" prefHeight="36.0" prefWidth="307.0" promptText="Nom utilisateur" style="-fx-text-inner-color: #e8ecf1;">
+            <JFXTextField fx:id="pseudoc" focusColor="#ec644b" focusTraversable="false" labelFloat="true" layoutX="124.0" layoutY="233.0" maxWidth="356.0" minWidth="279.0" prefHeight="36.0" prefWidth="307.0" promptText="Code carte" style="-fx-text-inner-color: #e8ecf1;">
                <font>
                   <Font name="Century Gothic" size="14.0" />
                </font>
             </JFXTextField>
-            <JFXPasswordField fx:id="motpassc" focusColor="#ec644b" focusTraversable="false" labelFloat="true" layoutX="124.0" layoutY="294.0" maxWidth="356.0" minWidth="291.0" prefHeight="36.0" prefWidth="307.0" promptText="Mote de passe" style="-fx-text-inner-color: #e8ecf1;">
+            <JFXPasswordField fx:id="motpassc" focusColor="#ec644b" focusTraversable="false" labelFloat="true" layoutX="124.0" layoutY="294.0" maxWidth="356.0" minWidth="291.0" prefHeight="36.0" prefWidth="307.0" promptText="Code PIN" style="-fx-text-inner-color: #e8ecf1;">
                <font>
                   <Font name="Century Gothic" size="14.0" />
                </font>
@@ -34,7 +34,7 @@
                   <Font name="Century Gothic" size="13.0" />
                </font>
             </JFXButton>
-            <FontAwesomeIconView fill="#cf3a3a" glyphName="USER" layoutX="99.0" layoutY="254.0" size="18" />
+            <FontAwesomeIconView fill="#cf3a3a" glyphName="USER" layoutX="99.0" layoutY="254.0" size="18" text="" />
             <FontAwesomeIconView fill="#ec644b" glyphName="KEY" layoutX="98.0" layoutY="313.0" size="18" />
             <Label layoutX="196.0" layoutY="146.0" prefHeight="17.0" prefWidth="239.0" text="Authentification" textFill="#ec644b">
                <font>

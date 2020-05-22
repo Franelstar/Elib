@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class CarteMagnetique {
 
+	private int id;
 	private String code;
 	private int codePin;
 	private Date validide;
@@ -60,5 +61,19 @@ public class CarteMagnetique {
 	 */
 	public void setValidide(Date validide) {
 		this.validide = validide;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 }

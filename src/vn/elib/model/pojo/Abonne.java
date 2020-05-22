@@ -11,6 +11,7 @@ public class Abonne {
 	private String nom;
 	private String prenom;
 	private CarteMagnetique carte;
+	private Character sexe;
 	
 	public Abonne(int id, String nom, String prenom) {
 		this.id = id;
@@ -78,5 +79,19 @@ public class Abonne {
 		if(carteMagnetique != null) {
 			this.carte = carteMagnetique;
 		}
+	}
+
+	/**
+	 * @return the sexe
+	 */
+	public Character getSexe() {
+		return sexe;
+	}
+
+	/**
+	 * @param sexe the sexe to set
+	 */
+	public void setSexe(Character sexe) {
+		this.sexe = sexe;
 	}
 }
