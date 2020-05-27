@@ -9,8 +9,8 @@ package vn.elib.model.pojo;
  */
 public class Genre {
 
-	private int id;
-	private String nomGenre;
+	private int id_genre;
+	private String nom_genre;
 	
 	/**
 	 * @param id
@@ -18,35 +18,35 @@ public class Genre {
 	 */
 	public Genre(int id, String nomGenre) {
 		super();
-		this.id = id;
-		this.nomGenre = nomGenre;
+		this.id_genre = id;
+		this.nom_genre = nomGenre;
 	}
 
 	/**
 	 * @return the id
 	 */
 	public int getId() {
-		return id;
+		return id_genre;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
 	public void setId(int id) {
-		this.id = id;
+		this.id_genre = id;
 	}
 
 	/**
 	 * @return the nomGenre
 	 */
 	public String getNomGenre() {
-		return nomGenre;
+		return nom_genre;
 	}
 
 	/**
 	 * @param nomGenre the nomGenre to set
 	 */
 	public void setNomGenre(String nomGenre) {
-		this.nomGenre = nomGenre;
+		this.nom_genre = nomGenre;
 	}
 }

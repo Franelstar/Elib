@@ -11,6 +11,7 @@ public class Exemplaire {
 
 	private int id;
 	private Rfid rfid;
+	
 	/**
 	 * @param id
 	 * @param rfid

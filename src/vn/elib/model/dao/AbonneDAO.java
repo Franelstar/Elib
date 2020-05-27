@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javafx.collections.ObservableList;
 import vn.elib.model.pojo.Abonne;
 import vn.elib.model.pojo.CarteMagnetique;
 
@@ -74,5 +75,11 @@ public class AbonneDAO extends DAO<Abonne> {
 	    	e.printStackTrace();
 	    }
 	    	return abonne;
+	}
+
+	@Override
+	public ObservableList<Abonne> find() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

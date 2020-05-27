@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import javax.swing.JTextField;
@@ -39,6 +40,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import vn.elib.model.dao.DAO;
+import vn.elib.model.dao.DAOFactory;
+import vn.elib.model.pojo.Abonne;
+import vn.elib.model.pojo.Genre;
 import vn.elib.model.pojo.Livre;
 
 /**
@@ -73,7 +78,7 @@ public class MenuElib implements Initializable {
 	    private TableColumn<Livre,String>editeur;//ok
 
 	    @FXML
-	    private TableColumn<Livre,Integer> anne;//ok
+	    private TableColumn<Livre,Date> anne;//ok
 
 	    @FXML
 	    private TableColumn<Livre,Integer> nbrpage;//ok
@@ -91,6 +96,8 @@ public class MenuElib implements Initializable {
 	    private Label echecemprunter;//ok
 	    @FXML
 	    private Label succeeprunter;//ok
+	    
+	    private ObservableList<Livre> data = FXCollections.observableArrayList();
 		 
 
 	  //  @FXML
@@ -100,7 +107,28 @@ public class MenuElib implements Initializable {
 		public void initialize(URL arg0, ResourceBundle arg1) {
 			// TODO Auto-generated method stub
 			
+			tableLivre();
 		}
+		
+		public void  tableLivre(){
+	    	
+	    	tableulivre.getItems().clear();
+	    	
+	    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
+			data = livreDao.find();
+				
+			isbn.setCellValueFactory(new PropertyValueFactory<Livre,String>("id"));
+			titre.setCellValueFactory(new PropertyValueFactory<Livre,String>("titre"));
+			editeur.setCellValueFactory(new PropertyValueFactory<Livre,String>("editeur"));
+			anne.setCellValueFactory(new PropertyValueFactory<Livre,Date>("annee"));
+			nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nbre_page"));
+			tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
+			nbrdispo.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nombreExemplaire"));
+			
+			
+			
+			tableulivre.setItems(data);
+	    }
 
 	   /*
 
@@ -127,24 +155,9 @@ public class MenuElib implements Initializable {
 			detDictionnaire(e);
 	    }
 	    
-	    private void  detLivre(ActionEvent e) throws IOException{
-			try {
-				Stage primaryStage = new Stage();
-				Parent root = FXMLLoader.load(getClass().getResource("Detl.fxml" ));
-				Scene scene = new Scene(root,865,347);
-				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primaryStage.setScene(scene);
-				primaryStage.show();	
-			} catch(Exception event) {
-				event.printStackTrace();
-			}
-		}
+	    
 		*/
-		@FXML
-	    public void afficheDetLivre(ActionEvent e)throws IOException,SQLException { //ok
-			//DocumentBD.getConnection();
-			//detLivre(e);
-	    }
+		
 	    /*
 		public static Connection getConnection() {
 			Connection con=null;
@@ -258,34 +271,7 @@ public class MenuElib implements Initializable {
 //////////////////////////Livre////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
-	    public void  tableLivre(){
-	    	
-	    	tableulivre.getItems().clear();
-			try {
-				String sql="SELECT document.isbn,titre,editeur,annee,nbr_page,type_livre,tome_livre,count(document.isbn) as nbr_exmpl  from Document,Livre where document.isbn=livre.isbn and code_adh IS NULL group by document.isbn";
-				Connection con = DocumentBD.getConnection();
-				PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-				ResultSet rs  = preparedStatement.executeQuery();
-				while(rs.next()) {
-					data.add(new Livre(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7),rs.getInt(8)));
-				
-				
-				}
-				con.close();
-			}catch(SQLException e) {
-				e.printStackTrace();
-			}
-			isbn.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-			titre.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-			editeur.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-			anne.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-			nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("Nbrpage"));
-			type.setCellValueFactory(new PropertyValueFactory<Livre,String>("Type"));
-			tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-			nbrdispo.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-			
-			tableulivre.setItems(data);
-	    }
+	    
 
 //////////////////////////Chercher/////////////////////////////////////
 
@@ -881,7 +867,7 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
 	
 	
 	
-		@FXML
+	@FXML
 	public void deconnecter(ActionEvent e)throws IOException,SQLException{
 		//CompteBD.getConnection();
 		//InscriptionEtAuthentification.deconnection();
@@ -899,4 +885,23 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
         fenetre.setY((primScreenBounds.getHeight() - fenetre.getHeight()) / 4); 
         fenetre.show();		
 	}*/
+		
+	@FXML
+    public void afficheDetLivre(ActionEvent e)throws IOException,SQLException {
+		//DocumentBD.getConnection();
+		detLivre(e);
+    }
+	
+	private void detLivre(ActionEvent e) throws IOException{
+		try {
+			Stage primaryStage = new Stage();
+			Parent root = FXMLLoader.load(getClass().getResource("DetailLivre.fxml"));
+			Scene scene = new Scene(root,865,347);
+			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			primaryStage.setScene(scene);
+			primaryStage.show();	
+		} catch(Exception event) {
+			event.printStackTrace();
+		}
+	}
 }

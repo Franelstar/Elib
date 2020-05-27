@@ -5,6 +5,9 @@ package vn.elib.model.dao;
 
 import java.sql.Connection;
 
+import javafx.collections.ObservableList;
+import vn.elib.model.pojo.Livre;
+
 /**
  * @author franel
  *
@@ -43,4 +46,10 @@ public abstract class DAO<T> {
 	  * @return T
 	  */
 	  public abstract T find(int id);
+	  
+	  /**
+	  * Méthode de recherche des informations
+	  * @return ObservableList<T>
+	  */
+	  public abstract ObservableList<T> find();
 }
