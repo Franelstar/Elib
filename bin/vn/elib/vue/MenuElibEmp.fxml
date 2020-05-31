@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="1070.0" style="-fx-background-color: #ecf0f1;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.elib.vue.MenuElib">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="1070.0" style="-fx-background-color: #ecf0f1;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.elib.vue.MenuElibEmp">
    <children>
       <Pane layoutX="203.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="1070.0" style="-fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="203.0" AnchorPane.rightAnchor="-9.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -28,7 +28,7 @@
                         <Font name="DejaVu Sans Mono Bold" size="29.0" />
                      </font>
                   </Label>
-                  <MaterialDesignIconView fill="#ec644b" glyphName="ADJUST" layoutX="383.0" layoutY="53.0" size="40" text="" />
+                  <MaterialDesignIconView fill="#944bea" glyphName="ADJUST" layoutX="383.0" layoutY="53.0" size="40" text="" />
                </children>
                <effect>
                   <DropShadow blurType="TWO_PASS_BOX" color="#00000051" height="11.4" radius="2.35" width="0.0" />
@@ -47,17 +47,17 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton layoutX="451.0" layoutY="37.0" onAction="#BY" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@authent.css" text="Afficher">
+                                          <JFXButton buttonType="RAISED" layoutX="451.0" layoutY="37.0" onAction="#BY" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@authent.css" text="Afficher">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
                                           </JFXButton>
-                                          <TextField fx:id="cherche" layoutX="174.0" layoutY="38.0" prefHeight="27.0" prefWidth="183.0" promptText="Chercher" style="-fx-background-color: #ffffff; -fx-border-color: #ec644b; -fx-border-radius: 2em;">
+                                          <TextField fx:id="cherche" layoutX="174.0" layoutY="38.0" prefHeight="27.0" prefWidth="183.0" promptText="Chercher" style="-fx-background-color: #ffffff; -fx-border-color: #944bea; -fx-border-radius: 2em;">
                                              <font>
                                                 <Font name="Century Gothic" size="11.0" />
                                              </font>
                                           </TextField>
-                                          <FontAwesomeIconView fill="#ec644b" glyphName="SEARCH" layoutX="335.0" layoutY="56.0" size="15" />
+                                          <FontAwesomeIconView fill="#944bea" glyphName="SEARCH" layoutX="335.0" layoutY="56.0" size="15" text="" />
                                           <MenuButton layoutX="49.0" layoutY="39.0" mnemonicParsing="false" text="Chercher par">
                                             <items>
                                               <MenuItem mnemonicParsing="false" onAction="#ByISBN" text="ISBN" />
@@ -71,7 +71,7 @@
                                                 <Font name="Century Gothic Bold" size="13.0" />
                                              </font>
                                           </Label>
-                                          <JFXButton layoutX="556.0" layoutY="37.0" onAction="#afficheDetLivre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@details.css" text="Details">
+                                          <JFXButton buttonType="RAISED" layoutX="556.0" layoutY="37.0" onAction="#afficheDetLivre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@details.css" text="Details">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -111,17 +111,21 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton fx:id="emprunterB" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Emprunter" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Emprunter" textFill="WHITE">
+                                          <JFXButton fx:id="emprunterB" buttonType="RAISED" disable="true" layoutX="575.0" layoutY="30.0" onAction="#Emprunter" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@emprunter.css" text="Supprimer" textFill="WHITE">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
                                           </JFXButton>
-                                          <FontAwesomeIconView fill="#393939" glyphName="CART_PLUS" layoutX="9.0" layoutY="19.0" size="15" />
-                                          <Label layoutX="28.0" layoutY="6.0" prefHeight="16.0" prefWidth="171.0" stylesheets="@application.css" text="Emprunter" textFill="#393939">
+                                          <JFXButton buttonType="RAISED" layoutX="679.0" layoutY="30.0" onAction="#nouveauLivre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@details.css" text="Nouveau">
                                              <font>
-                                                <Font size="15.0" />
+                                                <Font name="Century Gothic" size="12.0" />
                                              </font>
-                                          </Label>
+                                          </JFXButton>
+                                          <JFXButton fx:id="exemplaire" buttonType="RAISED" disable="true" layoutX="470.0" layoutY="30.0" onAction="#Emprunter" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@emprunter.css" text="Exemplaire" textFill="WHITE">
+                                             <font>
+                                                <Font name="Century Gothic" size="12.0" />
+                                             </font>
+                                          </JFXButton>
                                           <Label fx:id="succeeprunter" layoutX="28.0" layoutY="34.0" prefHeight="17.0" prefWidth="419.0" textFill="#4fb945">
                                              <font>
                                                 <Font size="15.0" />
@@ -140,7 +144,7 @@
                         </AnchorPane>
                   </content>
                 </Tab>
-                  <Tab text="Emprunts">
+                  <Tab text="Abonnés">
                      <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="665.0" style="-fx-background-color: #ecf0f1;">
                            <children>
@@ -180,7 +184,7 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton fx:id="remettreE" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Remettre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Remettre" textFill="WHITE">
+                                          <JFXButton fx:id="remettreE" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Remettre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #944bea;" stylesheets="@emprunter.css" text="Remettre" textFill="WHITE">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -257,7 +261,7 @@
          <children>
             <Pane prefHeight="701.0" prefWidth="164.0" style="-fx-background-color: #2e3131;" AnchorPane.bottomAnchor="-18.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <Pane prefHeight="69.0" prefWidth="164.0" style="-fx-background-color: #ec644b;">
+                  <Pane prefHeight="69.0" prefWidth="164.0" style="-fx-background-color: #944bea;">
                      <children>
                         <Label fx:id="title" layoutX="17.0" layoutY="20.0" prefHeight="29.0" prefWidth="130.0" textFill="#f8f8f8" wrapText="true">
                            <font>
@@ -269,12 +273,12 @@
                         <DropShadow color="#0000009c" height="14.83" radius="3.2075" width="0.0" />
                      </effect>
                   </Pane>
-                  <JFXButton layoutX="49.0" layoutY="430.0" onAction="#deconnecter" prefHeight="50.0" prefWidth="56.0" stylesheets="@Menu.css" text="Deconnecter">
+                  <JFXButton layoutX="49.0" layoutY="430.0" onAction="#deconnecter" prefHeight="50.0" prefWidth="56.0" stylesheets="@Menu.css">
                      <font>
                         <Font name="Century Gothic" size="12.0" />
                      </font>
                      <graphic>
-                        <OctIconView fill="#ec644b" glyphName="SIGN_OUT" size="40" text="" textAlignment="CENTER" wrappingWidth="40.00000071525574" />
+                        <OctIconView fill="#944bea" glyphName="SIGN_OUT" size="40" text="" textAlignment="CENTER" wrappingWidth="40.00000071525574" />
                      </graphic>
                   </JFXButton>
                </children>

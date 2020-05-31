@@ -27,8 +27,6 @@ public class EmpruntDAO extends DAO<Emprunt>{
 		try {
 	    	String query = "INSERT INTO emprunt (id_abonne, id_exemplaire, date_emprunt)";
 	        query += "  VALUES(?, ?, ?)";
-	    	
-	        System.out.println(obj.getAbonne().getId());
 	        
 	    	PreparedStatement prepare = this.connect.prepareStatement(query,
 	    			ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -39,6 +37,24 @@ public class EmpruntDAO extends DAO<Emprunt>{
 	    	prepare.setDate(3, new Date(obj.getDate_emprunt().getTime()));
 	    	
 	    	prepare.executeUpdate();
+	    	
+	    	
+	    	query = "SELECT * FROM exemplaire";
+	        query += " WHERE id_exemplaire = ?";
+	    	
+	    	prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setInt(1, obj.getExempalire().getId());
+	    	
+	    	ResultSet result = prepare.executeQuery();
+	    	
+	    	if(result.first()){
+	    		result.updateBoolean("etat_emprunt", true);
+	    		result.updateRow();
+	    	}
+	    	
 	    	
 	    	return true;
 	    	
@@ -77,17 +93,32 @@ public class EmpruntDAO extends DAO<Emprunt>{
 	    		obj.setDate_retour(Calendar.getInstance().getTime());
 	    		result.updateDate("date_retour", new Date(obj.getDate_retour().getTime()));
 	    		result.updateRow();
-	    		
-	    		return true;
 	    	}
+	    	
+	    	
+	    	query = "SELECT * FROM exemplaire";
+	        query += " WHERE id_exemplaire = ?";
+	    	
+	    	prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setInt(1, obj.getExempalire().getId());
+	    	
+	    	result = prepare.executeQuery();
+	    	
+	    	if(result.first()){
+	    		result.updateBoolean("etat_emprunt", false);
+	    		result.updateRow();
+	    	}
+	    	
+	    	
+	    	return true;
 	    } catch (SQLException e) {
 	    	e.printStackTrace();
 	    }
 		
-		
 		return false;
-		
-		
 	}
 
 	@Override

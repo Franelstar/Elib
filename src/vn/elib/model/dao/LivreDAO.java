@@ -4,6 +4,7 @@
 package vn.elib.model.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,12 +30,55 @@ public class LivreDAO extends DAO<Livre> {
 	@Override
 	public boolean create(Livre obj) {
 		// TODO Auto-generated method stub
+		
+		try {
+	    	String query = "INSERT INTO livre (isbn, titre, auteur, editeur, tome, annee, genre, nbre_page)";
+	        query += "  VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+	    		        
+	    	PreparedStatement prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, obj.getId());
+	    	prepare.setString(2, obj.getTitre());
+	    	prepare.setString(3, obj.getAuteur());
+	    	prepare.setString(4, obj.getEditeur());
+	    	prepare.setInt(5, obj.getTome());
+	    	prepare.setDate(6, new Date(obj.getAnnee().getTime()));
+	    	prepare.setInt(7, obj.getGenre().getId());
+	    	prepare.setInt(8, obj.getNbre_page());
+	    	
+	    	prepare.executeUpdate();
+	    	
+	    	return true;
+	    	
+		} catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+		
 		return false;
 	}
 
 	@Override
 	public boolean delete(Livre obj) {
 		// TODO Auto-generated method stub
+		try {
+	    	String query = "DELETE FROM livre WHERE isbn = ?";
+	        
+	    	PreparedStatement prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, obj.getId());
+	    	
+	    	prepare.executeUpdate();
+	    	
+	    	return true;
+	    	
+		} catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+		
 		return false;
 	}
 

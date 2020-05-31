@@ -45,11 +45,13 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import vn.elib.controller.Global;
 import vn.elib.model.dao.DAO;
 import vn.elib.model.dao.DAOFactory;
+import vn.elib.model.dao.ExemplaireDAO;
 import vn.elib.model.pojo.Abonne;
 import vn.elib.model.pojo.Emprunt;
 import vn.elib.model.pojo.Exemplaire;
@@ -61,7 +63,7 @@ import vn.elib.model.pojo.LivreEmprunte;
  * @author franel
  *
  */
-public class MenuElib implements Initializable {
+public class MenuElibEmp implements Initializable {
 
 	int by;
 	/*
@@ -97,6 +99,8 @@ public class MenuElib implements Initializable {
     private TextField cherche;
     @FXML
     private JFXButton emprunterB;
+    @FXML
+    private JFXButton exemplaire;
     @FXML
     private Label echecemprunter;
     @FXML
@@ -161,7 +165,7 @@ public class MenuElib implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
-		title.setText(Global.abonne.getPrenom());
+		title.setText(Global.employe.getPrenom());
 		tableLivre();
 		tableLivreEmprunt();
 		tableLivreHistorique();
@@ -554,58 +558,78 @@ public void  tableLivreHistorique(){
 		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
 		if(livreSelection == null) {
 			emprunterB.setDisable(true);
+			exemplaire.setDisable(true);
 		}
 		else {
 			emprunterB.setDisable(false);
+			exemplaire.setDisable(false);
 		}
+    }
+    
+    @FXML
+    public void E(ActionEvent e) throws IOException{    	
+    	
+    	Parent root = FXMLLoader.load(getClass().getResource("CreerLivre.fxml"));
+		Scene s = new Scene(root,841,584);
+		Stage parentStage = (Stage) ((Node)e.getSource()).getScene().getWindow();	
+    	
+    	Stage dialog = new Stage();
+    	dialog.setScene(s);
+
+    	dialog.initOwner(parentStage);
+    	dialog.initModality(Modality.APPLICATION_MODAL); 
+    	dialog.showAndWait();
+    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
+		data = livreDao.find();tableulivre.setItems(data);
     }
 	   
 	@FXML
 	public void Emprunter(ActionEvent e)throws IOException,SQLException{
 		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
 		
-		Exemplaire exemplaire = livreSelection.getOneDisponible();
-		
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Erreur");
-		
-		echecemprunter.setText("");
-		
-		if(exemplaire != null) {
-			if (!livreSelection.estDisponible()){
-				alert.setContentText("Aucun exemplaire disponible pour ce livre");
-				alert.showAndWait();
-			} else if(Global.abonne.getEmpruntEnCour().size() >= Global.MaxPret) {
-				emprunterB.setDisable(true);
-				alert.setContentText("nombre maximal de livre emprunté");
-				alert.showAndWait();
-			} else {
-				DAO<Emprunt> empruntDao = DAOFactory.getEmpruntDAO();
-				Emprunt emprunt = new Emprunt(Global.abonne, exemplaire, Calendar.getInstance().getTime(), null);
-				if(empruntDao.create(emprunt)) {
-					succeeprunter.setText("Vous avez emprunter "+livreSelection.getTitre());
-					echecemprunter.setVisible(false);
-				} else {
-					echecemprunter.setText("Désole! il ya une erreur.");
-					succeeprunter.setVisible(false);
-				}
-				
-				DAO<Abonne> abonneDao = DAOFactory.getAbonneDAO();
-				Global.abonne = abonneDao.find(Integer.parseInt(Global.abonne.getCarteMagnetique().getCode()));
-				emprunterB.setDisable(true);
-				DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
-				dataEmprunte = livreEmprunte.find();
-		    	tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
-		    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
-				data = livreDao.find();
-				tableulivre.setItems(data);
-		    	emprunterB.setDisable(true);
+		if(livreSelection != null) {
+			DAO<Exemplaire> exemplaireDao = DAOFactory.getExempalireDAO();
+			DAO<Livre> livreDao = DAOFactory.getLivreDAO();
+			for(Exemplaire exemplaire: livreSelection.getListExemplaire()) {
+				exemplaireDao.delete(exemplaire);
 			}
-		} else {
-			alert.setContentText("Aucun exemplaire disponible pour ce livre");
-			alert.showAndWait();
+						
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Erreur");
+			
+			echecemprunter.setText("");
+			
+			if(livreDao.delete(livreSelection)) {
+				data = livreDao.find();tableulivre.setItems(data);
+				succeeprunter.setText("Livre supprimé avec succès");
+			} else {
+				alert.setContentText("Une erreur est survenue");
+				alert.showAndWait();
+			}
 		}
+		emprunterB.setDisable(true);
+		exemplaire.setDisable(true);
 	}
+	
+	@FXML
+    public void Exempalire(ActionEvent e) throws IOException{    
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
+		
+		if(livreSelection != null) {
+	    	Parent root = FXMLLoader.load(getClass().getResource("CreerLivre.fxml"));
+			Scene s = new Scene(root,841,584);
+			Stage parentStage = (Stage) ((Node)e.getSource()).getScene().getWindow();	
+	    	
+	    	Stage dialog = new Stage();
+	    	dialog.setScene(s);
+	    	
+	    	dialog.initOwner(parentStage);
+	    	dialog.initModality(Modality.APPLICATION_MODAL); 
+	    	dialog.showAndWait();
+	    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
+			data = livreDao.find();tableulivre.setItems(data);
+		}
+    }
 	
 	public void EmpruntSelection(MouseEvent e)throws IOException,SQLException {
 		LivreEmprunte livreSelection = tableulivreE.getSelectionModel().getSelectedItem();
@@ -1104,7 +1128,7 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
 	}
 	
 	public void loadAuthen(ActionEvent e) throws IOException{
-		Parent root = FXMLLoader.load(getClass().getResource("Authentification.fxml"));
+		Parent root = FXMLLoader.load(getClass().getResource("AuthentificationEmp.fxml"));
 		Scene s = new Scene(root,1070,590);
 		Stage fenetre = (Stage) ((Node)e.getSource()).getScene().getWindow();
 		fenetre.setScene(s);

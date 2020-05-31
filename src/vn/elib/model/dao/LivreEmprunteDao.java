@@ -63,13 +63,16 @@ public class LivreEmprunteDao extends DAO<LivreEmprunte> {
 	        query += " INNER JOIN genre ON genre = id_genre";
 	        query += " INNER JOIN exemplaire ON livre = isbn";
 	        query += " INNER JOIN emprunt ON emprunt.id_exemplaire = exemplaire.id_exemplaire";
-	        query += " WHERE emprunt.id_abonne = ?";
+	        
+	        if(Global.abonne != null)
+	        	query += " WHERE emprunt.id_abonne = ?";
 	    	
 	    	PreparedStatement prepare = this.connect.prepareStatement(query,
 	    			ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
 	    	
-	    	prepare.setInt(1, Global.abonne.getId());
+	    	if(Global.abonne != null)
+	    		prepare.setInt(1, Global.abonne.getId());
 	    	
 	    	ResultSet result = prepare.executeQuery();
 	    	

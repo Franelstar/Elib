@@ -47,7 +47,7 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton layoutX="451.0" layoutY="37.0" onAction="#BY" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@authent.css" text="Afficher">
+                                          <JFXButton buttonType="RAISED" layoutX="451.0" layoutY="37.0" onAction="#BY" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@authent.css" text="Afficher">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -71,7 +71,7 @@
                                                 <Font name="Century Gothic Bold" size="13.0" />
                                              </font>
                                           </Label>
-                                          <JFXButton layoutX="556.0" layoutY="37.0" onAction="#afficheDetLivre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@details.css" text="Details">
+                                          <JFXButton buttonType="RAISED" layoutX="556.0" layoutY="37.0" onAction="#afficheDetLivre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@details.css" text="Details">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -111,7 +111,7 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton fx:id="emprunterB" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Emprunter" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Emprunter" textFill="WHITE">
+                                          <JFXButton fx:id="emprunterB" buttonType="RAISED" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Emprunter" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Emprunter" textFill="WHITE">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -180,7 +180,7 @@
                                           <DropShadow color="#00000053" height="9.14" radius="4.07" width="9.14" />
                                        </effect>
                                        <children>
-                                          <JFXButton fx:id="remettreE" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Remettre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Remettre" textFill="WHITE">
+                                          <JFXButton fx:id="remettreE" buttonType="RAISED" disable="true" layoutX="571.0" layoutY="29.0" onAction="#Remettre" prefHeight="27.0" prefWidth="86.0" style="-fx-background-color: #ec644b;" stylesheets="@emprunter.css" text="Remettre" textFill="WHITE">
                                              <font>
                                                 <Font name="Century Gothic" size="12.0" />
                                              </font>
@@ -253,7 +253,7 @@
             </JFXTabPane>
          </children>
       </Pane>
-      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="202.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="165.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <Pane prefHeight="701.0" prefWidth="164.0" style="-fx-background-color: #2e3131;" AnchorPane.bottomAnchor="-18.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
@@ -273,8 +273,10 @@
                      <font>
                         <Font name="Century Gothic" size="12.0" />
                      </font>
+                     <graphic>
+                        <OctIconView fill="#ec644b" glyphName="SIGN_OUT" size="40" text="" textAlignment="CENTER" wrappingWidth="40.00000071525574" />
+                     </graphic>
                   </JFXButton>
-                  <OctIconView fill="#ec644b" glyphName="SIGN_OUT" layoutX="61.0" layoutY="471.0" size="40" text="" textAlignment="CENTER" wrappingWidth="40.00000071525574" />
                </children>
             </Pane>
          </children>

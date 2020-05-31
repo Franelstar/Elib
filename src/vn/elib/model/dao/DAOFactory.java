@@ -7,8 +7,10 @@ import java.sql.Connection;
 
 import vn.elib.model.ElibConnexion;
 import vn.elib.model.pojo.Abonne;
+import vn.elib.model.pojo.Employe;
 import vn.elib.model.pojo.Emprunt;
 import vn.elib.model.pojo.Exemplaire;
+import vn.elib.model.pojo.Genre;
 import vn.elib.model.pojo.Livre;
 import vn.elib.model.pojo.LivreEmprunte;
 
@@ -58,5 +60,21 @@ public class DAOFactory {
 	 */
 	public static DAO<Exemplaire> getExempalireDAO(){
 	   return new ExemplaireDAO(conn);
+	}
+	
+	/**
+	 * Retourne un objet Employe interagissant avec la BDD
+	 * @return DAO
+	 */
+	public static DAO<Employe> getEmployeDAO(){
+	   return new EmployeDAO(conn);
+	}
+	
+	/**
+	 * Retourne un objet Genre interagissant avec la BDD
+	 * @return DAO
+	 */
+	public static DAO<Genre> getGenreDAO(){
+	   return new GenreDAO(conn);
 	}
 }
