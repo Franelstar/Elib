@@ -29,13 +29,13 @@
                   <Font name="Century Gothic" size="14.0" />
                </font>
             </JFXPasswordField>
-            <JFXButton layoutX="114.0" layoutY="464.0" onAction="#Connecter" prefHeight="28.0" prefWidth="307.0" stylesheets="@connection.css" text="Valider" textFill="#22a7f0">
+            <JFXButton layoutX="114.0" layoutY="464.0" onAction="#Connecter" prefHeight="28.0" prefWidth="307.0" style="-fx-background-color: #EC644B;" text="Valider" textFill="#feffff">
                <font>
                   <Font name="Century Gothic" size="13.0" />
                </font>
             </JFXButton>
-            <FontAwesomeIconView fill="#cf3a3a" glyphName="USER" layoutX="99.0" layoutY="254.0" size="18" text="" />
-            <FontAwesomeIconView fill="#ec644b" glyphName="KEY" layoutX="98.0" layoutY="313.0" size="18" />
+            <FontAwesomeIconView fill="#ec644b" glyphName="USER" layoutX="99.0" layoutY="254.0" size="18" text="" />
+            <FontAwesomeIconView fill="#ec644b" glyphName="KEY" layoutX="98.0" layoutY="313.0" size="18" text="" />
             <Label layoutX="196.0" layoutY="146.0" prefHeight="17.0" prefWidth="239.0" text="Authentification" textFill="#ec644b">
                <font>
                   <Font name="Century Gothic" size="24.0" />

@@ -9,8 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javafx.collections.ObservableList;
+import vn.elib.controller.Global;
 import vn.elib.model.pojo.Abonne;
 import vn.elib.model.pojo.CarteMagnetique;
+import vn.elib.model.pojo.Emprunt;
+import vn.elib.model.pojo.Exemplaire;
+import vn.elib.model.pojo.Rfid;
 
 /**
  * @author franel
@@ -57,29 +61,54 @@ public class AbonneDAO extends DAO<Abonne> {
 	    	prepare.setString(1, String.valueOf(carte));
 	    	
 	    	ResultSet result = prepare.executeQuery();
-	    	
-			if(result.next()) {
-				System.out.println("ok");
-				//cmpt.setPseudo_nom(resultSet.getString(2));
-				//cmpt.setMot_pass(resultSet.getString(4));
-				//cmpt.setCode_adh(resultSet.getString(1));
-				//cmpt.setTypecompte(resultSet.getInt(6));
-			}
 
 	    	if(result.first()){
 	    		CarteMagnetique carte_magnetique = new CarteMagnetique(result.getString("code"), result.getInt("code_pin"), result.getDate("validite"));
-	    		abonne = new Abonne(carte, result.getString("nom_abonne"), result.getString("prenom_abonne"));
+	    		abonne = new Abonne(result.getInt("id_abonne"), result.getString("nom_abonne"), result.getString("prenom_abonne"));
 	    		abonne.setCarteMagnetique(carte_magnetique);
+	    		
+	    		String query2 = "SELECT * FROM emprunt";
+	    		query2 += " INNER JOIN exemplaire ON emprunt.id_exemplaire = exemplaire.id_exemplaire";
+		        query2 += " WHERE id_abonne = ?";
+		        
+		        PreparedStatement prepare2 = this.connect.prepareStatement(query2,
+		    			ResultSet.TYPE_SCROLL_SENSITIVE,
+	                    ResultSet.CONCUR_UPDATABLE);
+		    	
+		    	prepare2.setInt(1, abonne.getId());
+		    	
+		    	ResultSet result2 = prepare2.executeQuery();
+		    	
+		    	while(result2.next()) {
+		    		Emprunt emp = new Emprunt();
+		    		
+		    		Rfid rfid = new Rfid(result2.getString("rfid"));
+					Exemplaire exp = new Exemplaire(result2.getInt("id_exemplaire"), rfid,
+							!result2.getBoolean("etat_emprunt"));
+					
+					emp.setExempalire(exp);
+					emp.setAbonne(Global.abonne);
+					emp.setDate_emprunt(result2.getDate("date_emprunt"));
+					emp.setDate_retour(result2.getDate("date_retour"));
+					emp.setId(result2.getInt("id_emprunt"));
+					
+					abonne.addEmprunt(emp);
+				}
 	    	}
 	    } catch (SQLException e) {
 	    	e.printStackTrace();
 	    }
-	    	return abonne;
+	    
+	    return abonne;
 	}
 
 	@Override
 	public ObservableList<Abonne> find() {
 		// TODO Auto-generated method stub
 		return null;
-	}	
+	}
+	
+	public void getLivreEmprunte(Abonne a) {
+		
+	}
 }

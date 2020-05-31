@@ -202,4 +202,26 @@ public class Livre {
 	public void setNombreExemplaire(int nombreExemplaire) {
 		this.nombreExemplaire = nombreExemplaire;
 	}
+	
+	/**
+	 * @return Boolean if one exemplaire is disponible
+	 */
+	public Boolean estDisponible() {
+		for(Exemplaire exp :listExemplaire) {
+			if(exp.getDisponible())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * @return One exemplaire disponible
+	 */
+	public Exemplaire getOneDisponible() {
+		for(Exemplaire exp :listExemplaire) {
+			if(exp.getDisponible())
+				return exp;
+		}
+		return null;
+	}
 }

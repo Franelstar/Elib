@@ -49,4 +49,11 @@ public class Genre {
 	public void setNomGenre(String nomGenre) {
 		this.nom_genre = nomGenre;
 	}
+
+	@Override
+	public String toString() {
+		return nom_genre;
+	}
+	
+	
 }

@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import vn.elib.controller.Global;
 import vn.elib.model.dao.DAO;
 import vn.elib.model.dao.DAOFactory;
 import vn.elib.model.pojo.Abonne;
@@ -41,7 +42,8 @@ public class Authentification {
 		if( code > 0) {
 			Abonne abonne = abonneDao.find(code);
 			if(abonne.getCarteMagnetique().getCodePin().toString().equals(motpassc.getText()) &&
-					Calendar.getInstance().getTime().before(abonne.getCarteMagnetique().getValidide())) {
+				Calendar.getInstance().getTime().before(abonne.getCarteMagnetique().getValidide())) {
+				Global.abonne = abonne;
 				loadMenuElib(e);
 			} else {
 				messagec.setText("votre code carte et/ou votre code PIN est incorrect");

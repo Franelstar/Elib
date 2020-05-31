@@ -1,5 +1,8 @@
 package vn.elib.model.pojo;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 
  * @author franel
@@ -12,6 +15,7 @@ public class Abonne {
 	private String prenom;
 	private CarteMagnetique carte;
 	private Character sexe;
+	private Set<Emprunt> emprunt = new HashSet<Emprunt>();
 	
 	public Abonne(int id, String nom, String prenom) {
 		this.id = id;
@@ -93,5 +97,48 @@ public class Abonne {
 	 */
 	public void setSexe(Character sexe) {
 		this.sexe = sexe;
+	}
+
+	/**
+	 * @return the Emprunt
+	 */
+	public Set<Emprunt> getEmprunt() {
+		return emprunt;
+	}
+	
+	/**
+	 * @return the Emprunt
+	 */
+	public Set<Emprunt> getEmpruntEnCour() {
+		Set<Emprunt> empruntEnCour = new HashSet<Emprunt>();
+		for(Emprunt emp: emprunt) {
+			if(emp.getDate_retour() == null) {
+				empruntEnCour.add(emp);
+			}
+		}
+		return empruntEnCour;
+	}
+
+	/**
+	 * @param emprunt the emprunt to set
+	 */
+	public void setEmprunt(Set<Emprunt> emp) {
+		this.emprunt = emp;
+	}
+	
+	/**
+	 * @param Emprunt
+	 */
+	public void addEmprunt(Emprunt emp){
+		if(!this.emprunt.contains(emp)) {
+			this.emprunt.add(emp);
+		}
+	}
+
+	/**
+	 * @param Emprunt
+	 */
+	public void removeEmprunte(Emprunt emp){
+		this.emprunt.remove(emp);
 	}
 }

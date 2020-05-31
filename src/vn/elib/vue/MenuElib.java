@@ -11,8 +11,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.swing.JTextField;
 
@@ -31,20 +36,26 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import vn.elib.controller.Global;
 import vn.elib.model.dao.DAO;
 import vn.elib.model.dao.DAOFactory;
 import vn.elib.model.pojo.Abonne;
+import vn.elib.model.pojo.Emprunt;
+import vn.elib.model.pojo.Exemplaire;
 import vn.elib.model.pojo.Genre;
 import vn.elib.model.pojo.Livre;
+import vn.elib.model.pojo.LivreEmprunte;
 
 /**
  * @author franel
@@ -60,75 +71,290 @@ public class MenuElib implements Initializable {
 	private  Compte cmpt;
 	private Adherent adherent;
 	private Historique historiqueSelection;
-	*/
-
+	*/ 
 	
-	 
-	 // les FXML de tableu livre
-	    @FXML
-	    private TableView<Livre> tableulivre;//ok
+	
+	//les FXML de tableu livre
+    @FXML
+    private TableView<Livre> tableulivre;
+    @FXML
+    private TableColumn<Livre,String> isbn;
+    @FXML
+    private TableColumn<Livre,String> titre;
+    @FXML
+    private TableColumn<Livre,String> auteur;
+    @FXML
+    private TableColumn<Livre,String>editeur;
+    @FXML
+    private TableColumn<Livre,Date> anne;
+    @FXML
+    private TableColumn<Livre,Integer> nbrpage;
+    @FXML
+    private TableColumn<Livre,String> tome;
+    @FXML
+    private TableColumn<Livre,Genre> genre;
+	@FXML
+    private TextField cherche;
+    @FXML
+    private JFXButton emprunterB;
+    @FXML
+    private Label echecemprunter;
+    @FXML
+    private Label succeeprunter;
+    
+    //les FXML de tableu livre emprunté
+    @FXML
+    private TableView<LivreEmprunte> tableulivreE;
+    @FXML
+    private TableColumn<LivreEmprunte,String> isbnE;
+    @FXML
+    private TableColumn<LivreEmprunte,String> rfidE;
+    @FXML
+    private TableColumn<LivreEmprunte,String> titreE;
+    @FXML
+    private TableColumn<LivreEmprunte,String> auteurE;
+    @FXML
+    private TableColumn<LivreEmprunte,String>editeurE;
+    @FXML
+    private TableColumn<LivreEmprunte,Integer> nbrpageE;
+    @FXML
+    private TableColumn<LivreEmprunte,String> tomeE;
+    @FXML
+    private TableColumn<LivreEmprunte,Date> date_empruntE;
+    @FXML
+    private TableColumn<LivreEmprunte,Date> delaisE;
+    @FXML
+    private JFXButton remettreE;
+    @FXML
+    private Label echecRemettre;
+    @FXML
+    private Label succeeRemetre;
+    
+  //les FXML de tableu livre Historique
+    @FXML
+    private TableView<LivreEmprunte> tableulivreH;
+    @FXML
+    private TableColumn<LivreEmprunte,String> isbnH;
+    @FXML
+    private TableColumn<LivreEmprunte,String> titreH;
+    @FXML
+    private TableColumn<LivreEmprunte,String> auteurH;
+    @FXML
+    private TableColumn<LivreEmprunte,String>editeurH;
+    @FXML
+    private TableColumn<LivreEmprunte,Date> anneH;
+    @FXML
+    private TableColumn<LivreEmprunte,Integer> nbrpageH;
+    @FXML
+    private TableColumn<LivreEmprunte,String> tomeH;
+    @FXML
+    private TableColumn<LivreEmprunte,Date> date_empruntH;
+    @FXML
+    private TableColumn<LivreEmprunte,Date> date_remisH;
+    
+    @FXML
+    private Label title;
+    
+    private ObservableList<Livre> data = FXCollections.observableArrayList();
+    private ObservableList<LivreEmprunte> dataEmprunte = FXCollections.observableArrayList();
 
-	    @FXML
-	    private TableColumn<Livre,String> isbn;//ok
-
-	    @FXML
-	    private TableColumn<Livre,String> titre;//ok
-
-	    @FXML
-	    private TableColumn<Livre,String>editeur;//ok
-
-	    @FXML
-	    private TableColumn<Livre,Date> anne;//ok
-
-	    @FXML
-	    private TableColumn<Livre,Integer> nbrpage;//ok
-
-	    @FXML
-	    private TableColumn<Livre,String> tome;//ok
-
-	    @FXML
-	    private TableColumn<Livre,Integer> nbrdispo;//ok
-		@FXML
-	    private TextField cherche;//ok
-	    @FXML
-	    private JFXButton emprunterB;//ok
-	    @FXML
-	    private Label echecemprunter;//ok
-	    @FXML
-	    private Label succeeprunter;//ok
-	    
-	    private ObservableList<Livre> data = FXCollections.observableArrayList();
-		 
-
-	  //  @FXML
-	   // private Label totalelivre;
-
-		@Override
-		public void initialize(URL arg0, ResourceBundle arg1) {
-			// TODO Auto-generated method stub
-			
-			tableLivre();
-		}
+	@Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		// TODO Auto-generated method stub
+		title.setText(Global.abonne.getPrenom());
+		tableLivre();
+		tableLivreEmprunt();
+		tableLivreHistorique();
+	}
 		
-		public void  tableLivre(){
-	    	
-	    	tableulivre.getItems().clear();
-	    	
-	    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
-			data = livreDao.find();
-				
-			isbn.setCellValueFactory(new PropertyValueFactory<Livre,String>("id"));
-			titre.setCellValueFactory(new PropertyValueFactory<Livre,String>("titre"));
-			editeur.setCellValueFactory(new PropertyValueFactory<Livre,String>("editeur"));
-			anne.setCellValueFactory(new PropertyValueFactory<Livre,Date>("annee"));
-			nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nbre_page"));
-			tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-			nbrdispo.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nombreExemplaire"));
+	public void  tableLivre(){
+    	
+    	tableulivre.getItems().clear();
+    	
+    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
+		data = livreDao.find();
 			
+		isbn.setCellValueFactory(new PropertyValueFactory<Livre,String>("id"));
+		titre.setCellValueFactory(new PropertyValueFactory<Livre,String>("titre"));
+		auteur.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur"));
+		editeur.setCellValueFactory(new PropertyValueFactory<Livre,String>("editeur"));
+		anne.setCellValueFactory(new PropertyValueFactory<Livre,Date>("annee"));
+		anne.setCellFactory(column -> {
+	        TableCell<Livre, Date> cell = new TableCell<Livre, Date>() {
+	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            
+	            Calendar c = Calendar.getInstance();
+
+	            @Override
+	            protected void updateItem(Date item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                	c.setTime(item);
+	                    this.setText(sdf.format(c.getTime()));
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });
+		nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nbre_page"));
+		tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
+		//genre.setCellValueFactory(new PropertyValueFactory<Livre,Genre>("genre Nomgenre"));
+		/*genre.setCellFactory(column -> {
+	        TableCell<Livre, Genre> cell = new TableCell<Livre, Genre>() {
+	            private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+	            @Override
+	            protected void updateItem(Genre item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                    this.setText("toto");
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });*/
+		
+		tableulivre.setItems(data);
+    }
+	
+	public void  tableLivreEmprunt(){
+    	
+    	tableulivreE.getItems().clear();
+    	
+    	DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
+    	dataEmprunte = livreEmprunte.find();
 			
+		isbnE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("isbn"));
+		rfidE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("rfid"));
+		titreE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("titre"));
+		auteurE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("auteur"));
+		editeurE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("editeur"));
+		tomeE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("tome"));
+		nbrpageE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Integer>("nbre_page"));
+	    date_empruntE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Date>("date_emprunt"));
+	    date_empruntE.setCellFactory(column -> {
+	        TableCell<LivreEmprunte, Date> cell = new TableCell<LivreEmprunte, Date>() {
+	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            
+	            Calendar c = Calendar.getInstance();
+
+	            @Override
+	            protected void updateItem(Date item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                	c.setTime(item);
+	                    this.setText(sdf.format(c.getTime()));
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });
+	    delaisE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Date>("delais"));
+	    delaisE.setCellFactory(column -> {
+	        TableCell<LivreEmprunte, Date> cell = new TableCell<LivreEmprunte, Date>() {
+	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            
+	            Calendar c = Calendar.getInstance();
+
+	            @Override
+	            protected void updateItem(Date item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                	c.setTime(item);
+	                    this.setText(sdf.format(c.getTime()));
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });
+		
+		tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
+    }
+	
+public void  tableLivreHistorique(){
+    	
+    	tableulivreH.getItems().clear();
+    	
+    	DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
+    	dataEmprunte = livreEmprunte.find();
+    	
+    	
 			
-			tableulivre.setItems(data);
-	    }
+		isbnH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("isbn"));
+		titreH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("titre"));
+		auteurH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("auteur"));
+		editeurH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("editeur"));
+		tomeH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("tome"));
+		nbrpageH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Integer>("nbre_page"));
+		date_empruntH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Date>("date_emprunt"));
+		date_empruntH.setCellFactory(column -> {
+	        TableCell<LivreEmprunte, Date> cell = new TableCell<LivreEmprunte, Date>() {
+	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            
+	            Calendar c = Calendar.getInstance();
+
+	            @Override
+	            protected void updateItem(Date item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                	c.setTime(item);
+	                    this.setText(sdf.format(c.getTime()));
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });
+		date_remisH.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,Date>("date_remise"));
+		date_remisH.setCellFactory(column -> {
+	        TableCell<LivreEmprunte, Date> cell = new TableCell<LivreEmprunte, Date>() {
+	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            
+	            Calendar c = Calendar.getInstance();
+
+	            @Override
+	            protected void updateItem(Date item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if(empty) {
+	                    setText(null);
+	                }
+	                else {
+	                	c.setTime(item);
+	                    this.setText(sdf.format(c.getTime()));
+
+	                }
+	            }
+	        };
+
+	        return cell;
+	    });
+		
+		tableulivreH.setItems(dataEmprunte.filtered(t -> t.getDate_remise() != null));
+    }
 
 	   /*
 
@@ -214,19 +440,6 @@ public class MenuElib implements Initializable {
 	    
 	    
 	    */
-		@FXML
-	    public void document(ActionEvent e)throws IOException,SQLException {
-//	    	succeeprunter.setVisible(false);
-//			echecemprunter.setVisible(false);
-		/*	tableLivre();
-			tableMagazine();
-			tableDictionnaire();
-	    	emprunterB.setDisable(true);
-	    	emprunterBM.setDisable(true);
-			documents.toFront();
-			//emprunter.toBack();
-			parametres.toBack();*/
-		}
 		/*
 		
 		public void emprunter(ActionEvent e)throws IOException,SQLException {
@@ -237,29 +450,7 @@ public class MenuElib implements Initializable {
 		
 		}
 		*/
-		@FXML
-		public void parametres(ActionEvent e)throws IOException,SQLException{
-			/*parametres.toFront();
-			documents.toBack();
-			//rendre.toBack();
-			//emprunter.toBack();
-			pseudomodif.setText(cmpt.getPseudo_nom());*/	
-
-				}
 		
-		/*
-		
-
-		*/
-		@FXML
-		public void historique(ActionEvent e)throws IOException,SQLException{
-			/*historique.toFront();
-			parametres.toBack();
-			documents.toBack();
-			tableHistorique();
-			//rendre.toBack();
-			//emprunter.toBack();*/
-				}
 /*
 		 public ObservableList<Livre> data = FXCollections.observableArrayList();
 		 public ObservableList<Magazine> dataMagazine = FXCollections.observableArrayList();
@@ -359,63 +550,93 @@ public class MenuElib implements Initializable {
 	    }
 	    */
 	
-	    public void display(MouseEvent e)throws IOException,SQLException {
-			int type;
-			/*
-			String code = cmpt.getCode_adh();
-			Livre livreSelection= tableulivre.getSelectionModel().getSelectedItem();
-			if(livreSelection==null) {
-				emprunterB.setDisable(true);
+    public void display(MouseEvent e)throws IOException,SQLException {
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Erreur");
+		if(livreSelection == null) {
+			emprunterB.setDisable(true);
+		}
+		else if (!livreSelection.estDisponible()){
+			alert.setContentText("Aucun exemplaire disponible pour ce livre");
+			alert.showAndWait();
+		}
+		else {
+			//Set<Livre> livreEmpr = abonneDao.getLivreEmprunte(Global.abonne);
+			if(Global.abonne.getEmpruntEnCour().size() < Global.MaxPret) {
+				emprunterB.setDisable(false);
 			}
 			else {
-				livreEmpr = DocumentBD.getLivreByISBN(livreSelection.getISBN());
-				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Erreur");
-				type=AdherentBD.getTypeByCode(code);
-				switch(type) {
-				case 0: if(AdherentBD.getEtudiantByCode(code).getNbr_eprunter()<3) {
-							emprunterB.setDisable(false);
-						}
-						else {
-							alert.setContentText("Vous avez deja depasser le nombre maximal");
-							alert.showAndWait();
-						}break;
-						
-				case 1: if(AdherentBD.getProfesseurByCode(code).getNbr_eprunter()<5) {
-							emprunterB.setDisable(false);
-						}
-						else {
-							alert.setContentText("Vous avez deja depasser le nombre maximal");
-							alert.showAndWait();
-						}break;
-						
-				default: if(AdherentBD.getPersonneByCode(code).getNbr_eprunter()<1) {
-							emprunterB.setDisable(false);
-						}
-						else {
-							alert.setContentText("Vous avez deja depasser le nombre maximal");
-							alert.showAndWait();
-						}break;
-				}}*/
+				emprunterB.setDisable(true);
+				alert.setContentText("Vous avez atteind le nombre maximal de livre à emprunter");
+				alert.showAndWait();
 			}
+		}
+    }
 	   
-		@FXML
-		public void Emprunter(ActionEvent e)throws IOException,SQLException{
-			/*int test1 =DocumentBD.LivreEmprunter(livreEmpr,cmpt.getCode_adh());
-			int test2 = DocumentBD.ajouterHistorique(livreEmpr,cmpt.getCode_adh());
-				if(test2*test1!=0) {
-					succeeprunter.setText("Vous avez emprunter le document.");
-					echecemprunter.setVisible(false);
-				}
-				else {
-					echecemprunter.setText("D�sole! il ya un erreur.");
-					succeeprunter.setVisible(false);
-				}
-		    	tableLivre();
-		    	emprunterB.setDisable(true);
-*/
-				
+	@FXML
+	public void Emprunter(ActionEvent e)throws IOException,SQLException{
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
+		
+		Exemplaire exemplaire = livreSelection.getOneDisponible();
+		
+		if(exemplaire != null) {
+			DAO<Emprunt> empruntDao = DAOFactory.getEmpruntDAO();
+			Emprunt emprunt = new Emprunt(Global.abonne, exemplaire, Calendar.getInstance().getTime(), null);
+			if(empruntDao.create(emprunt)) {
+				DAO<Abonne> abonneDao = DAOFactory.getAbonneDAO();
+				Global.abonne = abonneDao.find(Integer.parseInt(Global.abonne.getCarteMagnetique().getCode()));
+				succeeprunter.setText("Vous avez emprunter "+livreSelection.getTitre());
+				echecemprunter.setVisible(false);
+			} else {
+				echecemprunter.setText("Désole! il ya une erreur.");
+				succeeprunter.setVisible(false);
 			}
+		} else {
+			echecemprunter.setText("Aucun exemplaire disponible pour ce livre");
+		}
+		emprunterB.setDisable(true);
+		DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
+		dataEmprunte = livreEmprunte.find();
+    	tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
+    	emprunterB.setDisable(true);
+	}
+	
+	public void EmpruntSelection(MouseEvent e)throws IOException,SQLException {
+		LivreEmprunte livreSelection = tableulivreE.getSelectionModel().getSelectedItem();
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Erreur");
+		if(livreSelection == null) {
+			remettreE.setDisable(true);
+		}
+		else {
+			remettreE.setDisable(false);
+		}
+	}
+	
+	@FXML
+	public void Remettre() {
+		LivreEmprunte livreSelection = tableulivreE.getSelectionModel().getSelectedItem();
+		if(livreSelection != null) {
+			DAO<Emprunt> empruntDao = DAOFactory.getEmpruntDAO();
+			Emprunt emprunt = empruntDao.find(livreSelection.getId_emprunt());
+			
+			if(empruntDao.update(emprunt)) {
+				DAO<Abonne> abonneDao = DAOFactory.getAbonneDAO();
+				Global.abonne = abonneDao.find(Integer.parseInt(Global.abonne.getCarteMagnetique().getCode()));
+				succeeRemetre.setText("Vous avez remis le livre "+livreSelection.getTitre());
+				echecRemettre.setVisible(false);
+			} else {
+				echecRemettre.setText("Désole! il ya une erreur.");
+				succeeRemetre.setVisible(false);
+			}
+			DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
+			dataEmprunte = livreEmprunte.find();
+	    	tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
+	    	tableulivreH.setItems(dataEmprunte.filtered(t -> t.getDate_remise() != null));
+		}
+		remettreE.setDisable(true);
+	}
 		
 	/*
 //////////////////////////////////////////////////////////////////////////
@@ -869,22 +1090,18 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
 	
 	@FXML
 	public void deconnecter(ActionEvent e)throws IOException,SQLException{
-		//CompteBD.getConnection();
-		//InscriptionEtAuthentification.deconnection();
-		//loadAuthen(e);
-			}
-	/*
+		Global.abonne = null;
+		loadAuthen(e);
+	}
+	
 	public void loadAuthen(ActionEvent e) throws IOException{
-		Parent root = FXMLLoader.load(getClass().getResource("InscriptionEtAuthentification.fxml" ));
-		Scene s = new Scene(root);
+		Parent root = FXMLLoader.load(getClass().getResource("Authentification.fxml"));
+		Scene s = new Scene(root,1070,590);
 		Stage fenetre = (Stage) ((Node)e.getSource()).getScene().getWindow();
 		fenetre.setScene(s);
 		fenetre.setResizable(false);
-		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        fenetre.setX((primScreenBounds.getWidth() - fenetre.getWidth()) / 2); 
-        fenetre.setY((primScreenBounds.getHeight() - fenetre.getHeight()) / 4); 
         fenetre.show();		
-	}*/
+	}
 		
 	@FXML
     public void afficheDetLivre(ActionEvent e)throws IOException,SQLException {
@@ -901,7 +1118,7 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
 			primaryStage.setScene(scene);
 			primaryStage.show();	
 		} catch(Exception event) {
-			event.printStackTrace();
+			event.printStackTrace();	
 		}
 	}
 }

@@ -74,6 +74,7 @@ public class LivreDAO extends DAO<Livre> {
 						l.setEditeur(result.getString("editeur"));
 						l.setNbre_page(result.getInt("nbre_page"));
 						l.setTome(result.getInt("tome"));
+						l.setAnnee(result.getDate("annee"));
 						
 						Genre g = new Genre(result.getInt("id_genre"), result.getString("nom_genre"));
 						l.setGenre(g);
@@ -92,7 +93,8 @@ public class LivreDAO extends DAO<Livre> {
 				    	
 				    	while(result2.next()) {
 				    		Rfid rfid = new Rfid(result2.getString("rfid"));
-				    		Exemplaire ex = new Exemplaire(result2.getInt("id_exemplaire"), rfid);
+				    		Exemplaire ex = new Exemplaire(result2.getInt("id_exemplaire"), rfid,
+				    				!result2.getBoolean("etat_emprunt"));
 				    		l.addExemplaire(ex);
 				    	}
 						
