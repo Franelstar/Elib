@@ -8,9 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 
@@ -23,7 +20,6 @@ import vn.elib.model.dao.DAO;
 import vn.elib.model.dao.DAOFactory;
 import vn.elib.model.pojo.Genre;
 import vn.elib.model.pojo.Livre;
-import vn.elib.model.pojo.LivreEmprunte;
 
 /**
  * @author franel
@@ -65,11 +61,8 @@ public class CreerLivre  implements Initializable {
 		
 		errorCreer.setText("");
 		
-		Boolean ok = true;
-		
 		if(nomisbn.isEmpty() || nomtitre.isEmpty() || nomauteur.isEmpty() || nomediteur.isEmpty()
 				|| nomannee.isEmpty() || nompage.isEmpty() || nomgenre == null) {
-			ok = false;
 			errorCreer.setText("Veillez remplir tous les champs du formulaire");
 		} else if(verifier_tome(nomtome) <= 0){
 			errorCreer.setText("Le tome doit être un nombre positif");
@@ -117,7 +110,7 @@ public class CreerLivre  implements Initializable {
 		return 0;
 	}
 	
-private int verifier_annee(String code) {
+	private int verifier_annee(String code) {
 		
 		if(!code.isEmpty() && code.length() > 0) {
 			try {

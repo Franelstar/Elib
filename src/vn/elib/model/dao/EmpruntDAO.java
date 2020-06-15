@@ -74,7 +74,6 @@ public class EmpruntDAO extends DAO<Emprunt>{
 	@Override
 	public boolean update(Emprunt obj) {
 		// TODO Auto-generated method stub
-		Emprunt emprunt = null;   
 		try {
 	    	String query = "SELECT * FROM emprunt";
 	        query += " INNER JOIN exemplaire ON emprunt.id_exemplaire = exemplaire.id_exemplaire";
@@ -162,6 +161,12 @@ public class EmpruntDAO extends DAO<Emprunt>{
 
 	@Override
 	public ObservableList<Emprunt> find() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Emprunt find(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

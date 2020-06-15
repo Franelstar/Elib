@@ -4,12 +4,12 @@
 package vn.elib.model.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javafx.collections.ObservableList;
+import vn.elib.controller.Global;
 import vn.elib.model.pojo.Exemplaire;
 import vn.elib.model.pojo.Rfid;
 
@@ -27,6 +27,37 @@ public class ExemplaireDAO extends DAO<Exemplaire> {
 	@Override
 	public boolean create(Exemplaire obj) {
 		// TODO Auto-generated method stub
+		try {
+			String query = "INSERT INTO rfid (code_rfid)";
+	        query += " VALUES(?)";
+	        
+	        PreparedStatement prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+			
+	        prepare.setString(1, obj.getRfid().getCodeRFID());
+	        
+	        prepare.executeUpdate();
+			
+	    	query = "INSERT INTO exemplaire (rfid, livre, etat_emprunt)";
+	        query += " VALUES(?, ?, ?)";
+	    		        
+	    	prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, obj.getRfid().getCodeRFID());
+	    	prepare.setString(2, Global.livreExp.getId().get());
+	    	prepare.setBoolean(3, false);
+	    	
+	    	prepare.executeUpdate();
+	    	
+	    	return true;
+	    	
+		} catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+		
 		return false;
 	}
 
@@ -34,13 +65,23 @@ public class ExemplaireDAO extends DAO<Exemplaire> {
 	public boolean delete(Exemplaire obj) {
 		// TODO Auto-generated method stub
 		try {
-	    	String query = "DELETE FROM exemplaire WHERE id_exemplaire = ?";
+	    	String query = "DELETE FROM exemplaire WHERE rfid = ?";
 	        
 	    	PreparedStatement prepare = this.connect.prepareStatement(query,
 	    			ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
 	    	
-	    	prepare.setInt(1, obj.getId());
+	    	prepare.setString(1, obj.getRfid().getCodeRFID());
+	    	
+	    	prepare.executeUpdate();
+	    	
+	    	query = "DELETE FROM rfid WHERE code_rfid = ?";
+	    	
+	    	prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, obj.getRfid().getCodeRFID());
 	    	
 	    	prepare.executeUpdate();
 	    	
@@ -92,6 +133,12 @@ public class ExemplaireDAO extends DAO<Exemplaire> {
 
 	@Override
 	public ObservableList<Exemplaire> find() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Exemplaire find(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

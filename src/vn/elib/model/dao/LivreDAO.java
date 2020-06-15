@@ -39,14 +39,14 @@ public class LivreDAO extends DAO<Livre> {
 	    			ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
 	    	
-	    	prepare.setString(1, obj.getId());
-	    	prepare.setString(2, obj.getTitre());
-	    	prepare.setString(3, obj.getAuteur());
-	    	prepare.setString(4, obj.getEditeur());
-	    	prepare.setInt(5, obj.getTome());
+	    	prepare.setString(1, obj.getId().get());
+	    	prepare.setString(2, obj.getTitre().get());
+	    	prepare.setString(3, obj.getAuteur().get());
+	    	prepare.setString(4, obj.getEditeur().get());
+	    	prepare.setInt(5, obj.getTome().get());
 	    	prepare.setDate(6, new Date(obj.getAnnee().getTime()));
 	    	prepare.setInt(7, obj.getGenre().getId());
-	    	prepare.setInt(8, obj.getNbre_page());
+	    	prepare.setInt(8, obj.getNbre_page().get());
 	    	
 	    	prepare.executeUpdate();
 	    	
@@ -69,7 +69,7 @@ public class LivreDAO extends DAO<Livre> {
 	    			ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
 	    	
-	    	prepare.setString(1, obj.getId());
+	    	prepare.setString(1, obj.getId().get());
 	    	
 	    	prepare.executeUpdate();
 	    	
@@ -149,5 +149,63 @@ public class LivreDAO extends DAO<Livre> {
 	    }
 		
 		return data;
+	}
+
+	@Override
+	public Livre find(String id) {
+		// TODO Auto-generated method stub
+		
+		Livre livre = null;
+		
+		try {
+	    	String query = "SELECT * FROM livre";
+	        query += " INNER JOIN genre ON genre = id_genre";
+	        query += " WHERE isbn = ?";
+	    	
+	    	PreparedStatement prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, id);
+	    	
+	    	ResultSet result = prepare.executeQuery();
+	    	
+	    	if(result.first()){
+	    		
+						livre.setId(result.getString("isbn")); 
+						livre.setTitre(result.getString("titre"));
+						livre.setAuteur(result.getString("auteur"));
+						livre.setEditeur(result.getString("editeur"));
+						livre.setNbre_page(result.getInt("nbre_page"));
+						livre.setTome(result.getInt("tome"));
+						livre.setAnnee(result.getDate("annee"));
+						
+						Genre g = new Genre(result.getInt("id_genre"), result.getString("nom_genre"));
+						livre.setGenre(g);
+						
+						String query2 = "SELECT * FROM exemplaire";
+				        query2 += " INNER JOIN rfid ON rfid = code_rfid";
+				        query2 += " WHERE livre = ?";
+				    	
+				    	PreparedStatement prepare2 = this.connect.prepareStatement(query2,
+				    			ResultSet.TYPE_SCROLL_SENSITIVE,
+			                    ResultSet.CONCUR_UPDATABLE);
+				    	
+				    	prepare2.setString(1, result.getString("isbn"));
+				    	
+				    	ResultSet result2 = prepare2.executeQuery();
+				    	
+				    	while(result2.next()) {
+				    		Rfid rfid = new Rfid(result2.getString("rfid"));
+				    		Exemplaire ex = new Exemplaire(result2.getInt("id_exemplaire"), rfid,
+				    				!result2.getBoolean("etat_emprunt"));
+				    		livre.addExemplaire(ex);
+				    	}
+			}
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+		
+		return livre;
 	}	
 }

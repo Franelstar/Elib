@@ -10,10 +10,7 @@ import java.sql.SQLException;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import vn.elib.model.pojo.Exemplaire;
 import vn.elib.model.pojo.Genre;
-import vn.elib.model.pojo.Livre;
-import vn.elib.model.pojo.Rfid;
 
 /**
  * @author franel
@@ -29,6 +26,24 @@ public class GenreDAO extends DAO<Genre> {
 	@Override
 	public boolean create(Genre obj) {
 		// TODO Auto-generated method stub
+		try {
+	    	String query = "INSERT INTO genre (nom_genre)";
+	        query += "  VALUES(?)";
+	        
+	    	PreparedStatement prepare = this.connect.prepareStatement(query,
+	    			ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+	    	
+	    	prepare.setString(1, obj.getNomGenre().get());
+	    	
+	    	prepare.executeUpdate();
+	    	
+	    	return true;
+	    	
+		} catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+		
 		return false;
 	}
 
@@ -75,6 +90,12 @@ public class GenreDAO extends DAO<Genre> {
 	    }
 		
 		return data;
+	}
+
+	@Override
+	public Genre find(String id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

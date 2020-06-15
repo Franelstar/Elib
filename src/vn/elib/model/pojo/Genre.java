@@ -3,6 +3,9 @@
  */
 package vn.elib.model.pojo;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * @author franel
  *
@@ -10,7 +13,7 @@ package vn.elib.model.pojo;
 public class Genre {
 
 	private int id_genre;
-	private String nom_genre;
+	private StringProperty nom_genre;
 	
 	/**
 	 * @param id
@@ -19,7 +22,7 @@ public class Genre {
 	public Genre(int id, String nomGenre) {
 		super();
 		this.id_genre = id;
-		this.nom_genre = nomGenre;
+		this.nom_genre = new SimpleStringProperty(nomGenre);
 	}
 
 	/**
@@ -39,7 +42,7 @@ public class Genre {
 	/**
 	 * @return the nomGenre
 	 */
-	public String getNomGenre() {
+	public StringProperty getNomGenre() {
 		return nom_genre;
 	}
 
@@ -47,12 +50,12 @@ public class Genre {
 	 * @param nomGenre the nomGenre to set
 	 */
 	public void setNomGenre(String nomGenre) {
-		this.nom_genre = nomGenre;
+		this.nom_genre = new SimpleStringProperty(nomGenre);
 	}
 
 	@Override
 	public String toString() {
-		return nom_genre;
+		return nom_genre.get();
 	}
 	
 	

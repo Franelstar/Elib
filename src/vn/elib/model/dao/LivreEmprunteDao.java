@@ -11,11 +11,8 @@ import java.sql.SQLException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import vn.elib.controller.Global;
-import vn.elib.model.pojo.Exemplaire;
 import vn.elib.model.pojo.Genre;
-import vn.elib.model.pojo.Livre;
 import vn.elib.model.pojo.LivreEmprunte;
-import vn.elib.model.pojo.Rfid;
 
 /**
  * @author franel
@@ -98,6 +95,12 @@ public class LivreEmprunteDao extends DAO<LivreEmprunte> {
 	    }
 		
 		return data;
+	}
+
+	@Override
+	public LivreEmprunte find(String id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

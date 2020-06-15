@@ -16,7 +16,22 @@ public class Abonne {
 	private CarteMagnetique carte;
 	private Character sexe;
 	private Set<Emprunt> emprunt = new HashSet<Emprunt>();
+	private int etat;
 	
+	/**
+	 * @return the etat
+	 */
+	public int getEtat() {
+		return etat;
+	}
+
+	/**
+	 * @param etat the etat to set
+	 */
+	public void setEtat(int etat) {
+		this.etat = etat;
+	}
+
 	public Abonne(int id, String nom, String prenom) {
 		this.id = id;
 		this.nom = nom;

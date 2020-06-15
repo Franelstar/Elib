@@ -5,33 +5,29 @@ package vn.elib.vue;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import javax.swing.JTextField;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXPasswordField;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTreeTableColumn;
+import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.RecursiveTreeItem;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -40,20 +36,23 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.stage.Screen;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import vn.elib.controller.Global;
 import vn.elib.model.dao.DAO;
 import vn.elib.model.dao.DAOFactory;
 import vn.elib.model.pojo.Abonne;
 import vn.elib.model.pojo.Emprunt;
 import vn.elib.model.pojo.Exemplaire;
-import vn.elib.model.pojo.Genre;
 import vn.elib.model.pojo.Livre;
 import vn.elib.model.pojo.LivreEmprunte;
 
@@ -62,37 +61,27 @@ import vn.elib.model.pojo.LivreEmprunte;
  *
  */
 public class MenuElib implements Initializable {
-
-	int by;
-	/*
-	private Livre livreEmpr;
-	private Magazine magazineEmpr;
-	private Dictionnaire dictionnaireEmpr;
-	private  Compte cmpt;
-	private Adherent adherent;
-	private Historique historiqueSelection;
-	*/ 
-	
 	
 	//les FXML de tableu livre
+	@FXML
+    private JFXTreeTableView<Livre> tableulivre;
     @FXML
-    private TableView<Livre> tableulivre;
+    private JFXTreeTableColumn<Livre,String> isbn = new JFXTreeTableColumn<Livre, String>("ISBN");
     @FXML
-    private TableColumn<Livre,String> isbn;
+    private JFXTreeTableColumn<Livre,String> titre  = new JFXTreeTableColumn<Livre, String>("Titre");
     @FXML
-    private TableColumn<Livre,String> titre;
+    private JFXTreeTableColumn<Livre,String> auteur = new JFXTreeTableColumn<Livre, String>("Auteur");
     @FXML
-    private TableColumn<Livre,String> auteur;
+    private JFXTreeTableColumn<Livre,String> editeur = new JFXTreeTableColumn<Livre, String>("Editeur");
     @FXML
-    private TableColumn<Livre,String>editeur;
+    private JFXTreeTableColumn<Livre,String> anne = new JFXTreeTableColumn<Livre, String>("Année");
     @FXML
-    private TableColumn<Livre,Date> anne;
+    private JFXTreeTableColumn<Livre,Integer> nbrpage = new JFXTreeTableColumn<Livre, Integer>("Pages");
     @FXML
-    private TableColumn<Livre,Integer> nbrpage;
+    private JFXTreeTableColumn<Livre,Integer> tome = new JFXTreeTableColumn<Livre, Integer>("Tome");
     @FXML
-    private TableColumn<Livre,String> tome;
-    @FXML
-    private TableColumn<Livre,Genre> genre;
+    private JFXTreeTableColumn<Livre,String> genre = new JFXTreeTableColumn<Livre, String>("Genre");
+
 	@FXML
     private TextField cherche;
     @FXML
@@ -155,6 +144,9 @@ public class MenuElib implements Initializable {
     @FXML
     private Label title;
     
+    @FXML
+    private Label suspendu;
+    
     private ObservableList<Livre> data = FXCollections.observableArrayList();
     private ObservableList<LivreEmprunte> dataEmprunte = FXCollections.observableArrayList();
 
@@ -162,77 +154,157 @@ public class MenuElib implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 		title.setText(Global.abonne.getPrenom());
-		tableLivre();
+		
+		isbn.setPrefWidth(100);
+		titre.setPrefWidth(150);
+		auteur.setPrefWidth(100);
+		editeur.setPrefWidth(100);
+		anne.setPrefWidth(70);
+		nbrpage.setPrefWidth(60);
+		tome.setPrefWidth(50);
+		genre.setPrefWidth(100);
+		
 		tableLivreEmprunt();
 		tableLivreHistorique();
+		if(Global.abonne.getEtat() == 1) {
+			tableLivre();
+			suspendu.setVisible(false);
+		} else {
+			suspendu.setVisible(true);
+		}
 	}
 		
 	public void  tableLivre(){
     	
-    	tableulivre.getItems().clear();
-    	
+		tableulivre.getColumns().clear();
     	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
 		data = livreDao.find();
-			
-		isbn.setCellValueFactory(new PropertyValueFactory<Livre,String>("id"));
-		titre.setCellValueFactory(new PropertyValueFactory<Livre,String>("titre"));
-		auteur.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur"));
-		editeur.setCellValueFactory(new PropertyValueFactory<Livre,String>("editeur"));
-		anne.setCellValueFactory(new PropertyValueFactory<Livre,Date>("annee"));
-		anne.setCellFactory(column -> {
-	        TableCell<Livre, Date> cell = new TableCell<Livre, Date>() {
-	        	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-	            
-	            Calendar c = Calendar.getInstance();
-
-	            @Override
-	            protected void updateItem(Date item, boolean empty) {
-	                super.updateItem(item, empty);
-	                if(empty) {
-	                    setText(null);
-	                }
-	                else {
-	                	c.setTime(item);
-	                    this.setText(sdf.format(c.getTime()));
-
-	                }
-	            }
-	        };
-
-	        return cell;
-	    });
-		nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nbre_page"));
-		tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-		//genre.setCellValueFactory(new PropertyValueFactory<Livre,Genre>("genre Nomgenre"));
-		/*genre.setCellFactory(column -> {
-	        TableCell<Livre, Genre> cell = new TableCell<Livre, Genre>() {
-	            private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-
-	            @Override
-	            protected void updateItem(Genre item, boolean empty) {
-	                super.updateItem(item, empty);
-	                if(empty) {
-	                    setText(null);
-	                }
-	                else {
-	                    this.setText("toto");
-
-	                }
-	            }
-	        };
-
-	        return cell;
-	    });*/
 		
-		tableulivre.setItems(data);
+		
+		isbn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getId();
+			}
+		});
+		
+		titre.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getTitre();
+			}
+		});
+		
+		auteur.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getAuteur();
+			}
+		});
+		
+		editeur.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getEditeur();
+			}
+		});
+		
+		anne.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	            Calendar c = Calendar.getInstance();
+	            c.setTime(param.getValue().getValue().getAnnee());
+				return new SimpleStringProperty(sdf.format(c.getTime()).split("/")[2]);
+			}
+		});
+		
+		nbrpage.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,Integer>, ObservableValue<Integer>>() {
+			
+			@Override
+			public ObservableValue<Integer> call(CellDataFeatures<Livre, Integer> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getNbre_page().asObject();
+			}
+		});
+		
+		tome.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,Integer>, ObservableValue<Integer>>() {
+			
+			@Override
+			public ObservableValue<Integer> call(CellDataFeatures<Livre, Integer> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getTome().asObject();
+			}
+		});
+		
+		genre.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Livre,String>, ObservableValue<String>>() {
+			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<Livre, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getValue().getGenre().getNomGenre();
+			}
+		});
+		
+		final TreeItem<Livre> root = new RecursiveTreeItem<Livre>(data, RecursiveTreeObject::getChildren);
+		tableulivre.getColumns().setAll(isbn, titre, auteur, editeur, anne, nbrpage, tome, genre);
+		tableulivre.setRoot(root);
+		tableulivre.setShowRoot(false);
+		
+		cherche.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldV, String newV) {
+				// TODO Auto-generated method stub
+				tableulivre.setPredicate(new Predicate<TreeItem<Livre>>() {
+					
+					@Override
+					public boolean test(TreeItem<Livre> t) {
+						// TODO Auto-generated method stub
+						Boolean flag = t.getValue().getId().getValue().contains(newV)
+								|| t.getValue().getTitre().getValue().contains(newV)
+								|| t.getValue().getAuteur().getValue().contains(newV)
+								|| t.getValue().getEditeur().getValue().contains(newV)
+								|| t.getValue().getGenre().getNomGenre().getValue().contains(newV);
+						return flag;
+					}
+				});
+			}
+			
+		});
     }
 	
-	public void  tableLivreEmprunt(){
+	public void tableLivreEmprunt(){
     	
     	tableulivreE.getItems().clear();
     	
     	DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
     	dataEmprunte = livreEmprunte.find();
+    	
+    	/////////////////////////////////////////////
+    	
+    	for(LivreEmprunte l_e : dataEmprunte) {
+    		long diff = Calendar.getInstance().getTime().getTime() - l_e.getDate_emprunt().getTime();
+    		long jour = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    		
+    		if(jour > 45 && l_e.getDate_remise() == null && Global.abonne.getEtat() == 1) {
+    			Global.abonne.setEtat(0);
+    			DAO<Abonne> abonneDao = DAOFactory.getAbonneDAO();
+    			abonneDao.update(Global.abonne);
+    		}
+    	}
+    	
+    	////////////////////////////////////////////
 			
 		isbnE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("isbn"));
 		rfidE.setCellValueFactory(new PropertyValueFactory<LivreEmprunte,String>("rfid"));
@@ -291,7 +363,7 @@ public class MenuElib implements Initializable {
 		tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
     }
 	
-public void  tableLivreHistorique(){
+	public void  tableLivreHistorique(){
     	
     	tableulivreH.getItems().clear();
     	
@@ -355,203 +427,9 @@ public void  tableLivreHistorique(){
 		
 		tableulivreH.setItems(dataEmprunte.filtered(t -> t.getDate_remise() != null));
     }
-
-	   /*
-
-	    @FXML
-	    private TextField cherchehistorique;
-
-	    
-		private void  detDictionnaire(ActionEvent e) throws IOException{
-			try {
-				Stage primaryStage = new Stage();
-				Parent root = FXMLLoader.load(getClass().getResource("DetDict.fxml" ));
-				Scene scene = new Scene(root,865,347);
-				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primaryStage.setScene(scene);
-				primaryStage.show();	
-			} catch(Exception event) {
-				event.printStackTrace();
-			}
-		}
-		
-		
-	    public void afficheDetDictionnaire(ActionEvent e)throws IOException,SQLException {
-			DocumentBD.getConnection();
-			detDictionnaire(e);
-	    }
-	    
-	    
-		*/
-		
-	    /*
-		public static Connection getConnection() {
-			Connection con=null;
-			try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/projet_bibliotheque?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-			con = DriverManager.getConnection(url,"root","");
-			}catch(ClassNotFoundException | SQLException e) {
-				e.printStackTrace();
-			}
-			
-			return con;
-		}
-		
-		
-		private void  detMagazine(ActionEvent e) throws IOException{
-			try {
-				Stage primaryStage = new Stage();
-				Parent root = FXMLLoader.load(getClass().getResource("DetMag.fxml" ));
-				Scene scene = new Scene(root,865,347);
-				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primaryStage.setScene(scene);
-				primaryStage.show();	
-			} catch(Exception event) {
-				event.printStackTrace();
-			}
-		}
-		
-		
-	    public void afficheMagazine(ActionEvent e)throws IOException,SQLException {
-			DocumentBD.getConnection();
-			detMagazine(e);
-	    }
-	    
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Menu Principale////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-	    
-	    static Connection con = null;
-	    @Override
-		public void initialize(URL location, ResourceBundle resources){
-			cmpt=CompteBD.getCompteByEtat(1);
-		
-	    	tableLivre();
-	    	tableMagazine();
-	    	tableDictionnaire();
-	    	title.setText(cmpt.getPseudo_nom());
-	    	
-		}
-		
-	    
-	    
-	    
-	    */
-		/*
-		
-		public void emprunter(ActionEvent e)throws IOException,SQLException {
-			//emprunter.toFront();
-			documents.toBack();
-			parametres.toBack();
-			//rendre.toBack();
-		
-		}
-		*/
-		
-/*
-		 public ObservableList<Livre> data = FXCollections.observableArrayList();
-		 public ObservableList<Magazine> dataMagazine = FXCollections.observableArrayList();
-		 public ObservableList<Dictionnaire> dataDictionnaire = FXCollections.observableArrayList();
-		 public ObservableList<Historique> dataHistorique = FXCollections.observableArrayList();
-	    
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Livre////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-	    
-
-//////////////////////////Chercher/////////////////////////////////////
-
-	   
-*/
-		@FXML
-	    public void ByISBN(ActionEvent e)throws IOException,SQLException{ //ok
-	    	by=1;
-			emprunterB.setDisable(true);
-
-	    }
-		@FXML
-	    public void ByTitre(ActionEvent e)throws IOException,SQLException{ //ok
-	    	by=2;
-			emprunterB.setDisable(true);
-
-	    }
-	   /* public void ByEdition(ActionEvent e)throws IOException,SQLException{
-	    	by=3;
-			emprunterB.setDisable(true);
-
-	    }*/
-		@FXML
-	    public void BY(ActionEvent e)throws IOException,SQLException{ //ok
-	    	emprunterB.setDisable(true);
-	    	switch(by) {
-	    	//case 1: ChercheByIsbn(e);break;
-	    	//case 2: ChercheByEdition(e);break;
-	    	case 3:break;
-	    	default: break;
-	    	}
-	    }
-	    
-	    
-	    /*
-	    public void ChercheByIsbn(ActionEvent e)throws IOException,SQLException{
-	    	tableulivre.getItems().clear();
-	    	emprunterB.setDisable(true);
-			String sql="SELECT document.isbn,titre,editeur,annee,nbr_page,type_livre,tome_livre,count(document.isbn) as nbr_exmpl  from Document,Livre where document.isbn=livre.isbn and code_adh is null and document.isbn=? group by document.isbn limit 1";
-			Connection con = DocumentBD.getConnection();
-			PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-			preparedStatement.setString(1,cherche.getText());
-			ResultSet rs  = preparedStatement.executeQuery();
-			while(rs.next()) {
-			data.add(new Livre(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7),rs.getInt(8)));
-
-				}
-			con.close();
-			isbn.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-			titre.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-			editeur.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-			anne.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-			nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("Nbrpage"));
-			type.setCellValueFactory(new PropertyValueFactory<Livre,String>("type"));
-			tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-			nbrdispo.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-
-			
-			tableulivre.setItems(data);
-	    	
-	    }
-	    	    
-	    public void ChercheByEdition(ActionEvent e)throws IOException,SQLException{
-	    	tableulivre.getItems().clear();
-	    	emprunterB.setDisable(true);			String sql="SELECT document.isbn,titre,editeur,annee,nbr_page,type_livre,tome_livre,count(document.isbn) as nbr_exmpl  from Document,Livre where document.isbn=livre.isbn and code_adh is null and titre=? group by document.isbn limit 1";
-			Connection con = DocumentBD.getConnection();
-			PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-			preparedStatement.setString(1,cherche.getText());
-			ResultSet rs  = preparedStatement.executeQuery();
-			while(rs.next()) {
-			data.add(new Livre(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7),rs.getInt(8)));
-			
-		}
-			con.close();
-			isbn.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-			titre.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-			editeur.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-			anne.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-			nbrpage.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("Nbrpage"));
-			type.setCellValueFactory(new PropertyValueFactory<Livre,String>("type"));
-			tome.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-			nbrdispo.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-			tableulivre.setItems(data);
-	    	
-	    }
-	    */
 	
     public void display(MouseEvent e)throws IOException,SQLException {
-		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem().getValue();
 		if(livreSelection == null) {
 			emprunterB.setDisable(true);
 		}
@@ -562,7 +440,7 @@ public void  tableLivreHistorique(){
 	   
 	@FXML
 	public void Emprunter(ActionEvent e)throws IOException,SQLException{
-		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem();
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem().getValue();
 		
 		Exemplaire exemplaire = livreSelection.getOneDisponible();
 		
@@ -583,7 +461,7 @@ public void  tableLivreHistorique(){
 				DAO<Emprunt> empruntDao = DAOFactory.getEmpruntDAO();
 				Emprunt emprunt = new Emprunt(Global.abonne, exemplaire, Calendar.getInstance().getTime(), null);
 				if(empruntDao.create(emprunt)) {
-					succeeprunter.setText("Vous avez emprunter "+livreSelection.getTitre());
+					succeeprunter.setText("Vous avez emprunter "+livreSelection.getTitre().get());
 					echecemprunter.setVisible(false);
 				} else {
 					echecemprunter.setText("Désole! il ya une erreur.");
@@ -596,9 +474,7 @@ public void  tableLivreHistorique(){
 				DAO<LivreEmprunte> livreEmprunte = DAOFactory.getLivreEmprunteDAO();
 				dataEmprunte = livreEmprunte.find();
 		    	tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
-		    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
-				data = livreDao.find();
-				tableulivre.setItems(data);
+				tableLivre();
 		    	emprunterB.setDisable(true);
 			}
 		} else {
@@ -640,462 +516,10 @@ public void  tableLivreHistorique(){
 			dataEmprunte = livreEmprunte.find();
 	    	tableulivreE.setItems(dataEmprunte.filtered(t -> t.getDate_remise() == null));
 	    	tableulivreH.setItems(dataEmprunte.filtered(t -> t.getDate_remise() != null));
-	    	DAO<Livre> livreDao = DAOFactory.getLivreDAO();
-			data = livreDao.find();
-			tableulivre.setItems(data);
+	    	tableLivre();
 		}
 		remettreE.setDisable(true);
 	}
-		
-	/*
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Magazin////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-	public void  tableMagazine(){
-
-		tableumagazine.getItems().clear();
-		try {
-		String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,periode,date_edit  from Document,magazin where document.isbn=magazin.isbn and code_adh IS NULL group by document.isbn";
-		Connection con = DocumentBD.getConnection();
-		PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-		ResultSet rs  = preparedStatement.executeQuery();
-		while(rs.next()) {
-		dataMagazine.add(new Magazine(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),rs.getString(7)));
-	}
-		
-		con.close();
-		}catch(SQLException e) {
-		e.printStackTrace();
-		}
-		isbnm.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-		titrem.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-		editeurm.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-		annem.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-		periode.setCellValueFactory(new PropertyValueFactory<Magazine,Integer>("periode"));
-		dateedition.setCellValueFactory(new PropertyValueFactory<Magazine,String>("date_edit"));
-		nbrdispom.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-		
-		tableumagazine.setItems(dataMagazine);
-		}
-
-//////////////////////////Chercher/////////////////////////////////////
-
-
-public void magazineBY(ActionEvent e)throws IOException,SQLException{
-	emprunterBM.setDisable(true);
-	switch(by) {
-	case 1: ChercheMagazineByIsbn(e);break;
-	case 2: ChercheMagazineByTitre(e);break;
-	case 3:break;
-	default: break;
-	}
-}
-
-
-
-public void ChercheMagazineByIsbn(ActionEvent e)throws IOException,SQLException{
-	tableumagazine.getItems().clear();
-	emprunterBM.setDisable(true);
-	String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,periode,date_edit  from Document,magazin where document.isbn=magazin.isbn and code_adh IS NULL and document.isbn=? group by document.isbn";
-	Connection con = DocumentBD.getConnection();
-	PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-	preparedStatement.setString(1,cherchem.getText());
-	ResultSet rs  = preparedStatement.executeQuery();
-	while(rs.next()) {
-	dataMagazine.add(new Magazine(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),rs.getString(7)));
-	
-	}
-	con.close();
-	isbnm.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-	titrem.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-	editeurm.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-	annem.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-	periode.setCellValueFactory(new PropertyValueFactory<Magazine,Integer>("periode"));
-	dateedition.setCellValueFactory(new PropertyValueFactory<Magazine,String>("date_edit"));
-	nbrdispom.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-	
-	tableumagazine.setItems(dataMagazine);
-	
-	}
-
-public void ChercheMagazineByTitre(ActionEvent e)throws IOException,SQLException{
-	tableumagazine.getItems().clear();
-	emprunterBM.setDisable(true);			
-	String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,periode,date_edit  from Document,magazin where document.isbn=magazin.isbn and code_adh IS NULL and titre=? group by document.isbn";
-	Connection con = DocumentBD.getConnection();
-	PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-	preparedStatement.setString(1,cherche.getText());
-	ResultSet rs  = preparedStatement.executeQuery();
-	while(rs.next()) {
-		dataMagazine.add(new Magazine(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),rs.getString(7)));
-		
-		}
-		con.close();
-		isbnm.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-		titrem.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-		editeurm.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-		annem.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-		periode.setCellValueFactory(new PropertyValueFactory<Magazine,Integer>("periode"));
-		dateedition.setCellValueFactory(new PropertyValueFactory<Magazine,String>("date_edit"));
-		nbrdispom.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-		
-		tableumagazine.setItems(dataMagazine);
-
-}
-
-	public void tableMagazineSelection(MouseEvent e)throws IOException,SQLException {
-		int type;
-		String code = cmpt.getCode_adh();
-		Magazine magazineSelection= tableumagazine.getSelectionModel().getSelectedItem();
-		if(magazineSelection==null) {
-			emprunterBM.setDisable(true);
-		}
-		else {
-			magazineEmpr = DocumentBD.getMagazineByISBN(magazineSelection.getISBN());
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Erreur");
-			type=AdherentBD.getTypeByCode(code);
-			switch(type) {
-			case 0: if(AdherentBD.getEtudiantByCode(code).getNbr_eprunter()<3) {
-					emprunterBM.setDisable(false);
-					}
-					else {
-						alert.setContentText("Vous avez deja depasser le nombre maximal");
-						alert.showAndWait();
-					}break;
-		
-		case 1: if(AdherentBD.getProfesseurByCode(code).getNbr_eprunter()<5) {
-					emprunterBM.setDisable(false);
-				}
-				else {
-					alert.setContentText("Vous avez deja depasser le nombre maximal");
-					alert.showAndWait();
-				}break;
-		
-		default: if(AdherentBD.getPersonneByCode(code).getNbr_eprunter()<1) {
-					emprunterBM.setDisable(false);
-				}
-				else {
-					alert.setContentText("Vous avez deja depasser le nombre maximal");
-					alert.showAndWait();
-				}break;
-		}}
-}
-
-
-	public void EmprunterMagazine(ActionEvent e)throws IOException,SQLException{
-		succeeprunterm.setVisible(false);
-		echecemprunterm.setVisible(false);
-		int test1 =DocumentBD.magazineEmprunter(magazineEmpr,cmpt.getCode_adh());
-		int test2 = DocumentBD.ajouterHistorique(magazineEmpr,cmpt.getCode_adh());
-		if(test2*test1!=0) {
-			succeeprunterm.setText("Vous avez emprunter le document.");
-			echecemprunterm.setVisible(false);
-		}
-		else {
-			echecemprunterm.setText("D�sole! il ya un erreur.");
-			succeeprunterm.setVisible(false);
-		}
-		tableMagazine();
-		emprunterBM.setDisable(true);
-	
-	}
-
-	
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Dictionnaire////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-public void  tableDictionnaire(){
-
-tableudictionnaire.getItems().clear();
-try {
-String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,langue_dic,tome  from Document,dictionnaire where document.isbn=dictionnaire.isbn and code_adh IS NULL group by document.isbn";
-Connection con = DocumentBD.getConnection();
-PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-ResultSet rs  = preparedStatement.executeQuery();
-while(rs.next()) {
-dataDictionnaire.add(new Dictionnaire(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7)));
-}
-
-con.close();
-}catch(SQLException e) {
-e.printStackTrace();
-}
-isbnd.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-titred.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-editeurd.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-anned.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-langue.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("langue"));
-tomed.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("tome"));
-nbrdispod.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-
-tableudictionnaire.setItems(dataDictionnaire);
-}
-
-//////////////////////////Chercher/////////////////////////////////////
-
-
-public void dictionnaireBY(ActionEvent e)throws IOException,SQLException{
-emprunterBD.setDisable(true);
-switch(by) {
-case 1: ChercheDictionnaireByIsbn(e);break;
-case 2: ChercheDictionnaireByTitre(e);break;
-case 3:break;
-default: break;
-}
-}
-
-
-
-public void ChercheDictionnaireByIsbn(ActionEvent e)throws IOException,SQLException{
-tableudictionnaire.getItems().clear();
-emprunterBD.setDisable(true);
-String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,langue_dic,tome  from Document,dictionnaire where document.isbn=dictionnaire.isbn and code_adh IS NULL and document.isbn=? group by document.isbn";
-Connection con = DocumentBD.getConnection();
-PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-preparedStatement.setString(1,cherched.getText());
-ResultSet rs  = preparedStatement.executeQuery();
-while(rs.next()) {
-dataDictionnaire.add(new Dictionnaire(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7)));
-}
-con.close();
-isbnd.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-titred.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-editeurd.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-anned.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-langue.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("langue"));
-tomed.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("tome"));
-nbrdispod.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-
-tableudictionnaire.setItems(dataDictionnaire);
-
-}
-
-public void ChercheDictionnaireByTitre(ActionEvent e)throws IOException,SQLException{
-	tableudictionnaire.getItems().clear();
-	emprunterBD.setDisable(true);
-	String sql="SELECT document.isbn,titre,editeur,annee,count(document.isbn) as nbr_exmpl ,langue_dic,tome  from Document,dictionnaire where document.isbn=dictionnaire.isbn and code_adh IS NULL and document.titre=? group by document.isbn";
-	Connection con = DocumentBD.getConnection();
-	PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-	preparedStatement.setString(1,cherched.getText());
-	ResultSet rs  = preparedStatement.executeQuery();
-	while(rs.next()) {
-	dataDictionnaire.add(new Dictionnaire(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5),rs.getString(6),rs.getString(7)));
-	}
-	con.close();
-	isbnd.setCellValueFactory(new PropertyValueFactory<Document,String>("ISBN"));
-	titred.setCellValueFactory(new PropertyValueFactory<Document,String>("Titre"));
-	editeurd.setCellValueFactory(new PropertyValueFactory<Document,String>("editeur"));
-	anned.setCellValueFactory(new PropertyValueFactory<Document,Integer>("Annee"));
-	langue.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("langue"));
-	tomed.setCellValueFactory(new PropertyValueFactory<Dictionnaire,String>("tome"));
-	nbrdispod.setCellValueFactory(new PropertyValueFactory<Document,Integer>("nombreExemplaire"));
-
-	tableudictionnaire.setItems(dataDictionnaire);
-}
-
-public void tableDictionnaireSelection(MouseEvent e)throws IOException,SQLException {
-int type;
-String code = cmpt.getCode_adh();
-Dictionnaire dictionnaireSelection= tableudictionnaire.getSelectionModel().getSelectedItem();
-if(dictionnaireSelection==null) {
-emprunterBD.setDisable(true);
-}
-else {
-dictionnaireEmpr = DocumentBD.getDictionnaireByISBN(dictionnaireSelection.getISBN());
-Alert alert = new Alert(AlertType.ERROR);
-alert.setTitle("Erreur");
-type=AdherentBD.getTypeByCode(code);
-switch(type) {
-case 0: if(AdherentBD.getEtudiantByCode(code).getNbr_eprunter()<3) {
-emprunterBD.setDisable(false);
-}
-else {
-alert.setContentText("Vous avez deja depasser le nombre maximal");
-alert.showAndWait();
-}break;
-
-case 1: if(AdherentBD.getProfesseurByCode(code).getNbr_eprunter()<5) {
-emprunterBD.setDisable(false);
-}
-else {
-alert.setContentText("Vous avez deja depasser le nombre maximal");
-alert.showAndWait();
-}break;
-
-default: if(AdherentBD.getPersonneByCode(code).getNbr_eprunter()<1) {
-emprunterBD.setDisable(false);
-}
-else {
-alert.setContentText("Vous avez deja depasser le nombre maximal");
-alert.showAndWait();
-}break;
-}}
-}
-
-
-public void EmprunterDictionnaire(ActionEvent e)throws IOException,SQLException{
-	
-	int test1 =DocumentBD.dictionnaireEmprunter(dictionnaireEmpr,cmpt.getCode_adh());
-	int test2 = DocumentBD.ajouterHistorique(dictionnaireEmpr,cmpt.getCode_adh());
-	if(test2*test1!=0) {
-	succeeprunterd.setText("Vous avez emprunter le document.");
-	echecemprunterd.setVisible(false);
-	}
-	else {
-	echecemprunterd.setText("D�sole! il ya un erreur.");
-	succeeprunterd.setVisible(false);
-	}
-	tableDictionnaire();
-	emprunterBD.setDisable(true);
-
-}
-
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Historique///////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-	
-	
-	
-	
-	 public void  tableHistorique(){
-	    	tableuHistorique.getItems().clear();
-	    	retourB.setDisable(true);
-			try {
-				String sql="SELECT num_enrg,isbn,titre,type,date_debut,date_fin from historique where code_adh=?";
-				Connection con = DocumentBD.getConnection();
-				PreparedStatement preparedStatement = (PreparedStatement) con.prepareStatement(sql);
-				preparedStatement.setString(1,cmpt.getCode_adh());
-				ResultSet rs  = preparedStatement.executeQuery();
-				while(rs.next()) {
-					
-					switch(rs.getInt(4)) {
-					case 0:dataHistorique.add(new Historique(rs.getInt(1),rs.getString(2),rs.getString(3),"Livre",rs.getString(5),rs.getString(6)));break;
-					case 1:dataHistorique.add(new Historique(rs.getInt(1),rs.getString(2),rs.getString(3),"Magazine",rs.getString(5),rs.getString(6)));break;
-					default:dataHistorique.add(new Historique(rs.getInt(1),rs.getString(2),rs.getString(3),"Dictionnaire",rs.getString(5),rs.getString(6)));
-					}
-					
-					
-				}
-				con.close();
-			}catch(SQLException e) {
-				e.printStackTrace();
-			}
-			isbnH.setCellValueFactory(new PropertyValueFactory<Historique,String>("ISBN"));
-			titreH.setCellValueFactory(new PropertyValueFactory<Historique,String>("Titre"));
-			typeH.setCellValueFactory(new PropertyValueFactory<Historique,String>("Type"));
-			dateEH.setCellValueFactory(new PropertyValueFactory<Historique,String>("DateE"));
-			dateRH.setCellValueFactory(new PropertyValueFactory<Historique,String>("DateR"));
-			num_enrgH.setCellValueFactory(new PropertyValueFactory<Historique,Integer>("num_enrg"));
-			totalelivre.setText(DocumentBD.statistiqueLivre(cmpt.getCode_adh()));
-			totalemagazine.setText(DocumentBD.statistiqueMagazine(cmpt.getCode_adh()));
-			totaledictionnaire.setText(DocumentBD.statistiqueDictionnaire(cmpt.getCode_adh()));
-			tableuHistorique.setItems(dataHistorique);
-	    }
-	
-	
-		public void selectionHistorique(MouseEvent e)throws IOException,SQLException {
-			 historiqueSelection= tableuHistorique.getSelectionModel().getSelectedItem();
-			if(historiqueSelection==null) {
-				retourB.setDisable(true);
-			}
-			else {
-				if(historiqueSelection.getDateR().equals("non retourner")) {
-				retourB.setDisable(false);
-				}
-				else {
-					retourB.setDisable(true);
-				}
-			}
-		
-	}
-		public void retour(ActionEvent e)throws IOException,SQLException{
-			DocumentBD.retour(historiqueSelection.getNum_enrg(),cmpt.getCode_adh());
-			tableHistorique();
-		}*/
-		
-//////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//////////////////////////Modifier les informations de Profile///////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-	
-/*	
-	//Mot de passe
-public void motpassModif(ActionEvent e )throws IOException,ParseException{
-		Compte cmp = new Compte();
-		if(oldmotpass.getText().equals(cmpt.getMot_pass())) {
-				if(newmotpass.getText().equals(confirmer.getText())) {
-					
-					cmp.setMot_pass(confirmer.getText());
-					int statue = CompteBD.motpassModif(cmp,1);
-					if(statue>0) {
-						motpassmodifsucce.setText("Vous avez modifier votre mot de passe");
-						motpassmodifechec.setVisible(false);
-					}else {
-						motpassmodifechec.setText("Erreur technique");
-						motpassmodifsucce.setVisible(false);
-					}
-				}
-			else {
-				motpassmodifechec.setText("Mot de pass different.");
-				motpassmodifsucce.setVisible(false);
-			}
-			}
-		else {
-			motpassmodifechec.setText("Mot de passe incorrect");
-			motpassmodifsucce.setVisible(false);
-		}
-		
-	}
-	*/
-	
-
-///////////////Pseudo Nom///////////////////////////////////////////////
-/*
-	public void personneModif(ActionEvent e )throws IOException,ParseException{
-
-		Compte cmp = new Compte();
-		cmp.setPseudo_nom(pseudomodif.getText());
-		cmp.setTelephone(telephonemodif.getText());
-		cmp.setAdresse(adressemodif.getText());
-		int statue = CompteBD.personneModif(cmp,cmpt.getCode_adh());
-		if(statue>0) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Message");
-			alert.setContentText("Vous avez modifier les informations! ");
-			
-			alert.showAndWait();
-		}else {
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Message");
-			alert.setContentText("Erreur, essayez encore");
-			
-			alert.showAndWait();
-		}
-		
-	}
-*/
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	@FXML
 	public void deconnecter(ActionEvent e)throws IOException,SQLException{
@@ -1119,15 +543,28 @@ public void motpassModif(ActionEvent e )throws IOException,ParseException{
     }
 	
 	private void detLivre(ActionEvent e) throws IOException{
-		try {
-			Stage primaryStage = new Stage();
-			Parent root = FXMLLoader.load(getClass().getResource("DetailLivre.fxml"));
-			Scene scene = new Scene(root,865,347);
-			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
-			primaryStage.show();	
-		} catch(Exception event) {
-			event.printStackTrace();	
+		Livre livreSelection = tableulivre.getSelectionModel().getSelectedItem().getValue();
+		
+		if(livreSelection != null) {
+			FXMLLoader loader = new FXMLLoader();
+	        loader.setLocation(getClass().getResource("DetailLivre2.fxml"));
+	        AnchorPane page = (AnchorPane) loader.load();
+	        
+	    	//Parent root = FXMLLoader.load(loader);
+			Scene s = new Scene(page,841,584);
+			Stage parentStage = (Stage) ((Node)e.getSource()).getScene().getWindow();	
+	    	
+	    	Stage dialog = new Stage();
+	    	dialog.setScene(s);
+	    	dialog.setTitle(livreSelection.getTitre().get());
+	    	
+	    	dialog.initOwner(parentStage);
+	    	dialog.initModality(Modality.APPLICATION_MODAL);
+	    	
+	    	DetailLivre controller = loader.getController();
+	    	controller.setLivre(livreSelection);
+	    	
+	    	dialog.showAndWait();
 		}
 	}
 }

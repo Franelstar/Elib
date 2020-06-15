@@ -1,88 +1,44 @@
 package vn.elib.vue;
 
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ResourceBundle;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.jfoenix.controls.JFXTextField;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import vn.elib.model.pojo.Livre;
 
 public class DetailLivre {
 	@FXML
-    private TableView<Livre> tableulivreDet;
-
-    @FXML
-    private TableColumn<Livre, String> isbndet;
-
-    @FXML
-    private TableColumn<Livre, String> titredet;
-
-    @FXML
-    private TableColumn<Livre, String> editeurdet;
-
-    @FXML
-    private TableColumn<Livre, Integer> annedet;
-
-    @FXML
-    private TableColumn<Livre, Integer> nbrpagedet;
-
-    @FXML
-    private TableColumn<Livre, String> typedet;
-
-    @FXML
-    private TableColumn<Livre, String> tomedet;
-
-    @FXML
-    private TableColumn<Livre, Integer> nbrdispodet;
-
-    @FXML
-    private TableColumn<Livre, String> auteur1detl;
-
-    @FXML
-    private TableColumn<Livre, String> auteur2detl;
-
-    @FXML
-    private TableColumn<Livre, String> auteur3detl;
-
-    @FXML
-    private TableColumn<Livre, String> auteur4detl;
-   
-    
-    
-	 public ObservableList<Livre> data = FXCollections.observableArrayList();
-
-    
-    
-	public void initialize(URL location, ResourceBundle resources){
+    private JFXTextField isbn;
+	@FXML
+    private JFXTextField titre;
+	@FXML
+    private JFXTextField auteur;
+	@FXML
+    private JFXTextField editeur;
+	@FXML
+    private JFXTextField tome;
+	@FXML
+    private JFXTextField annee;
+	@FXML
+    private JFXTextField genre;
+	@FXML
+    private JFXTextField page;
 	
-    	tableLivre();
-    	
-	}
-	public void tableLivre() {
+	private Livre livre;	
+	Stage primaryStage;
+	
+	public void setLivre(Livre l) {
+		this.livre = l;
 		
-
-		
-		isbndet.setCellValueFactory(new PropertyValueFactory<Livre,String>("ISBN"));
-		titredet.setCellValueFactory(new PropertyValueFactory<Livre,String>("Titre"));
-		editeurdet.setCellValueFactory(new PropertyValueFactory<Livre,String>("editeur"));
-		annedet.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("Annee"));
-		nbrpagedet.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("Nbrpage"));
-		typedet.setCellValueFactory(new PropertyValueFactory<Livre,String>("Type"));
-		tomedet.setCellValueFactory(new PropertyValueFactory<Livre,String>("tome"));
-		nbrdispodet.setCellValueFactory(new PropertyValueFactory<Livre,Integer>("nombreExemplaire"));
-		auteur1detl.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur1"));
-		auteur2detl.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur2"));
-		auteur3detl.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur3"));
-		auteur4detl.setCellValueFactory(new PropertyValueFactory<Livre,String>("auteur4"));
-		
-		tableulivreDet.setItems(data);
+		isbn.setText(livre.getId().get());
+		titre.setText(livre.getTitre().get());
+		auteur.setText(livre.getAuteur().get());
+		editeur.setText(livre.getEditeur().get());
+		tome.setText(String.valueOf(livre.getTome().get()));
+		annee.setText(livre.getAnnee().toString().split("-")[0]);
+		genre.setText(livre.getGenre().getNomGenre().get());
+		genre.setEditable(false);
+		page.setText(String.valueOf(livre.getNbre_page().get()));
 	}
 }

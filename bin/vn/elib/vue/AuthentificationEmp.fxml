@@ -36,7 +36,7 @@
                </font>
             </JFXPasswordField>
             <FontAwesomeIconView fill="#944bea" glyphName="KEY" layoutX="88.0" layoutY="335.0" size="18" text="" />
-            <JFXButton layoutX="114.0" layoutY="422.0" onAction="#Connecter" prefHeight="28.0" prefWidth="307.0" style="-fx-background-color: #944bea;" text="Valider" textFill="#feffff">
+            <JFXButton buttonType="RAISED" layoutX="114.0" layoutY="422.0" onAction="#Connecter" prefHeight="28.0" prefWidth="307.0" style="-fx-background-color: #944bea;" text="Valider" textFill="#feffff">
                <font>
                   <Font name="Century Gothic" size="13.0" />
                </font>

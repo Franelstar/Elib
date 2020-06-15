@@ -9,13 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javafx.collections.ObservableList;
-import vn.elib.controller.Global;
-import vn.elib.model.pojo.Abonne;
-import vn.elib.model.pojo.CarteMagnetique;
 import vn.elib.model.pojo.Employe;
-import vn.elib.model.pojo.Emprunt;
-import vn.elib.model.pojo.Exemplaire;
-import vn.elib.model.pojo.Rfid;
 
 /**
  * @author franel
@@ -81,6 +75,12 @@ public class EmployeDAO extends DAO<Employe> {
 
 	@Override
 	public ObservableList<Employe> find() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Employe find(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

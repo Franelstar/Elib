@@ -7,22 +7,29 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * @author franel
  *
  */
-public class Livre {
+public class Livre extends RecursiveTreeObject<Livre> {
 
-	private String isbn;
-	private String titre;
-	private String auteur;
-	private String editeur;
-	private int nbre_page;
-	private int tome;
+	private StringProperty isbn;
+	private StringProperty titre;
+	private StringProperty auteur;
+	private StringProperty editeur;
+	private IntegerProperty nbre_page;
+	private IntegerProperty tome;
 	private Date annee;
 	private Genre genre;
 	private Set<Exemplaire> listExemplaire = new HashSet<Exemplaire>();
-	private int nombreExemplaire;
+	private IntegerProperty nombreExemplaire;
 	
 	/**
 	 * @param id
@@ -32,22 +39,22 @@ public class Livre {
 	 * @param genre
 	 */
 	public Livre(String id, String titre, String auteur, String editeur, Genre genre) {
-		this.isbn = id;
-		this.titre = titre;
-		this.auteur = auteur;
-		this.editeur = editeur;
+		this.isbn = new SimpleStringProperty(id);
+		this.titre = new SimpleStringProperty(titre);
+		this.auteur = new SimpleStringProperty(auteur);
+		this.editeur = new SimpleStringProperty(editeur);
 		this.genre = genre;
-		this.nombreExemplaire = 0;
+		this.nombreExemplaire = new SimpleIntegerProperty(0);
 	}
 	
 	public Livre() {
-		this.nombreExemplaire = 0;
+		this.nombreExemplaire = new SimpleIntegerProperty(0);
 	}
 
 	/**
 	 * @return the id
 	 */
-	public String getId() {
+	public StringProperty getId() {
 		return isbn;
 	}
 
@@ -55,13 +62,13 @@ public class Livre {
 	 * @param id the id to set
 	 */
 	public void setId(String id) {
-		this.isbn = id;
+		this.isbn = new SimpleStringProperty(id);
 	}
 
 	/**
 	 * @return the titre
 	 */
-	public String getTitre() {
+	public StringProperty getTitre() {
 		return titre;
 	}
 
@@ -69,13 +76,13 @@ public class Livre {
 	 * @param titre the titre to set
 	 */
 	public void setTitre(String titre) {
-		this.titre = titre;
+		this.titre = new SimpleStringProperty(titre);
 	}
 
 	/**
 	 * @return the auteur
 	 */
-	public String getAuteur() {
+	public StringProperty getAuteur() {
 		return auteur;
 	}
 
@@ -83,13 +90,13 @@ public class Livre {
 	 * @param auteur the auteur to set
 	 */
 	public void setAuteur(String auteur) {
-		this.auteur = auteur;
+		this.auteur = new SimpleStringProperty(auteur);
 	}
 
 	/**
 	 * @return the editeur
 	 */
-	public String getEditeur() {
+	public StringProperty getEditeur() {
 		return editeur;
 	}
 
@@ -97,7 +104,7 @@ public class Livre {
 	 * @param editeur the editeur to set
 	 */
 	public void setEditeur(String editeur) {
-		this.editeur = editeur;
+		this.editeur = new SimpleStringProperty(editeur);
 	}
 
 	/**
@@ -126,7 +133,7 @@ public class Livre {
 	 */
 	public void setListExemplaire(Set<Exemplaire> listExemplaire) {
 		this.listExemplaire = listExemplaire;
-		this.nombreExemplaire = listExemplaire.size();
+		this.nombreExemplaire = new SimpleIntegerProperty(listExemplaire.size());
 	}
 
 	/**
@@ -135,22 +142,22 @@ public class Livre {
 	public void addExemplaire(Exemplaire exemplaire){
 		if(!this.listExemplaire.contains(exemplaire)) {
 			this.listExemplaire.add(exemplaire);
-			this.nombreExemplaire = listExemplaire.size();
+			this.nombreExemplaire = new SimpleIntegerProperty(listExemplaire.size());
 		}
 	}
 
 	/**
 	 * @param Exemplaire
 	 */
-	public void removeEleve(Exemplaire exemplaire){
+	public void removeExemplaire(Exemplaire exemplaire){
 		this.listExemplaire.remove(exemplaire);
-		this.nombreExemplaire = listExemplaire.size();
+		this.nombreExemplaire = new SimpleIntegerProperty(listExemplaire.size());
 	}
 
 	/**
 	 * @return the tome
 	 */
-	public int getTome() {
+	public IntegerProperty getTome() {
 		return tome;
 	}
 
@@ -158,7 +165,7 @@ public class Livre {
 	 * @param tome the tome to set
 	 */
 	public void setTome(int tome) {
-		this.tome = tome;
+		this.tome = new SimpleIntegerProperty(tome);
 	}
 
 	/**
@@ -178,7 +185,7 @@ public class Livre {
 	/**
 	 * @return the nbre_page
 	 */
-	public int getNbre_page() {
+	public IntegerProperty getNbre_page() {
 		return nbre_page;
 	}
 
@@ -186,13 +193,13 @@ public class Livre {
 	 * @param nbre_page the nbre_page to set
 	 */
 	public void setNbre_page(int nbre_page) {
-		this.nbre_page = nbre_page;
+		this.nbre_page = new SimpleIntegerProperty(nbre_page);
 	}
 
 	/**
 	 * @return the nombreExemplaire
 	 */
-	public int getNombreExemplaire() {
+	public IntegerProperty getNombreExemplaire() {
 		return nombreExemplaire;
 	}
 
@@ -200,7 +207,7 @@ public class Livre {
 	 * @param nombreExemplaire the nombreExemplaire to set
 	 */
 	public void setNombreExemplaire(int nombreExemplaire) {
-		this.nombreExemplaire = nombreExemplaire;
+		this.nombreExemplaire = new SimpleIntegerProperty(nombreExemplaire);
 	}
 	
 	/**
@@ -223,5 +230,17 @@ public class Livre {
 				return exp;
 		}
 		return null;
+	}
+	
+	/**
+	 * @return nbre exemplaire disponible
+	 */
+	public IntegerProperty getNombreDisponible() {
+		int nbre = 0;
+		for(Exemplaire exp :listExemplaire) {
+			if(exp.getDisponible())
+				nbre++;
+		}
+		return new SimpleIntegerProperty(nbre);
 	}
 }
